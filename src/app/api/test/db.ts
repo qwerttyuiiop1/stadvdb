@@ -31,6 +31,7 @@ export const execute = (sql: string[] | string, connection: mysql.Connection): {
 		sql = [sql];
 	return {
 		start: async () => {
+			console.log("Executing queries");
 			await Promise.resolve();
 			const res = [];
 			for (const s of sql)
