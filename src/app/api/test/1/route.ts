@@ -10,7 +10,7 @@ export const GET = async (req: NextRequest) => {
 		START TRANSACTION;
 		SELECT * FROM foo;
 		COMMIT;
-	`.split("\n");
+	`.split("\n").map(s => s.trim()).filter(s => s.length > 0);
 	const e1 = await execute(query, read(process.env.NODE_1_IP)).start();
 	return NextResponse.json({test: e1});
   } catch (e) {

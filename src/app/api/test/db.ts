@@ -26,15 +26,15 @@ export const query = (sql: string, connection: mysql.Connection): Promise<any> =
 }
 
 export const execute = (sql: string[] | string, connection: mysql.Connection): { start: ()=>Promise<any[]> } => {
+	const query = promisify(connection.query).bind(connection);
 	if (typeof sql === "string")
 		sql = [sql];
 	return {
 		start: async () => {
-			console.log("Executing queries");
 			await Promise.resolve();
 			const res = [];
 			for (const s of sql)
-				res.push(await query(s, connection));
+				res.push(await query(s));
 			console.log(res);
 			return res;
 		}
