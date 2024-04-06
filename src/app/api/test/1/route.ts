@@ -1,19 +1,18 @@
 import { NextResponse } from "next/server";
-import { execute, readConnection as read } from "../db";
+import { Connection, read } from "../connectionController";
 
 // test 1:
 // Concurrent transactions in two or more nodes are reading the same data item.
 export const GET = async () => {
   try {
-	console.log('Executing test 1');
 	const query = `
 		START TRANSACTION;
 		SELECT * FROM foo;
 		COMMIT;
 	`.split("\n");
-	const ips = [process.env.NODE_1_IP, process.env.NODE_2_IP, process.env.NODE_3_IP];
-	const queries = ips.map(ip => execute(query, read(ip)));
-	const res = await Promise.all(queries.map(q=>q.start()));
+	const handler = (conn: Connection) => conn.execute(query).start();
+	const queries = [read(handler, 1), read(handler, 2), read(handler, 3)];
+	const res = await Promise.all(queries);
 	return NextResponse.json(res.map(r => r[1]));
   } catch (e) {
 	console.error(e);
