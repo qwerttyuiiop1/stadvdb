@@ -61,7 +61,7 @@ const execute = (connection: mysql.Connection, sql: string[] | string): { start:
 			await Promise.resolve();
 			const res = [];
 			for (const s of sql)
-				res.push((await connection.query(s))[0]);
+				res.push((await connection.query(s) as any)[0][0]);
 			return res;
 		}
 	}
