@@ -25,6 +25,10 @@ async function findMasterIp() {
 	const res = await Promise.all(queries);
 	return res.find(ip => ip !== null) || null;
 }
+async function electNewMaster() {
+	throw new Error('not implemented')
+}
+
 async function findActiveServer() {
 	const queries = IPS.map(async ip => {
 	  try {
@@ -35,6 +39,7 @@ async function findActiveServer() {
 		conn.end();
 		return ip;
 	  } catch (e) {
+		console.error(e)
 		return null;
 	  }
 	})
@@ -42,32 +47,36 @@ async function findActiveServer() {
 	return res.find(ip => ip !== null) || null;
 }
 
+type foo = string | string[]
 export interface Connection extends mysql.Connection {
-	queryAll: (sql: string[]) => { start: ()=>Promise<any[]> }
+	sql: <T extends foo>(sql: T) => { start: ()=>Promise<T extends string ? any : any[]> }
 }
-async function connectDB (host: string) {
+async function connectDB(host: string) {
 	const ret = await mysql.createConnection({
 		host: host, user: USER, password: PASSWORD, database: DATABASE
 	}) as Connection;
-	ret.queryAll = sql => execute(ret, sql);
+	ret.sql = sql => execute(ret, sql);
 	return ret;
 }
 const execute = (connection: mysql.Connection, sql: string[] | string): { start: ()=>Promise<any[]> } => {
-	if (typeof sql === "string")
+	let single = false;
+	if (typeof sql === "string") {
 		sql = [sql];
+		single = true;
+	}
 	sql = sql.map(s => s.trim()).filter(s => s.length > 0);
 	return {
 		start: async () => {
-			await Promise.resolve();
 			const res = [];
 			for (const s of sql)
 				res.push((await connection.query(s) as any)[0][0]);
-			return res;
+			return single ? res[0] : res;
 		}
 	}
 }
-export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server: undefined|1|2|3): Promise<T> => {
-	for (let i = 0; i < MAX_RETRIES; i++) {
+export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server: undefined|1|2|3 = undefined): Promise<T> => {
+	const max_retries = server === undefined ? MAX_RETRIES : 1;
+	for (let i = 0; i < max_retries; i++) {
 		try {
 			const ip = server === undefined ? readIP : IPS[server - 1];
 			const conn = await connectDB(ip);
@@ -75,7 +84,7 @@ export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server
 			conn.end();
 			return ret;
 		} catch (e: any) {
-			// handle error
+			readIP = await findActiveServer() || readIP;
 		}
 	}
 	throw new Error("All servers are down");
@@ -88,7 +97,11 @@ export const write = async <T>(func: ((conn: Connection) => Awaitable<T>)): Prom
 			conn.end();
 			return ret;
 		} catch (e) {
-			// handle error
+			const ip = await findMasterIp();
+			if (ip)
+				masterIP = ip
+			else
+				await electNewMaster();
 		}
 	}
 	throw new Error("All servers are down");
