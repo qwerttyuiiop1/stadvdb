@@ -40,7 +40,12 @@ async function connectDB (host: string) {
 	const ret = mysql.createConnection({
 		host: host, user: USER, password: PASSWORD, database: DATABASE
 	}) as Connection;
-	await promisify(ret.connect).bind(ret)();
+	await new Promise<void>((resolve, reject) => {
+		ret.connect(err => {
+			if (err) reject(err);
+			else resolve();
+		});
+	});
 	ret.execute = sql => execute(ret, sql);
 	return ret;
 }
