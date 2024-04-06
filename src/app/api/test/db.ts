@@ -27,6 +27,8 @@ export const query = (sql: string, connection: mysql.Connection): Promise<any> =
 export const execute = (sql: string[] | string, connection: mysql.Connection): { start: ()=>Promise<any[]> } => {
 	if (typeof sql === "string")
 		sql = [sql];
+	else
+		sql = sql.map(s => s.trim()).filter(s => s.length > 0);
 	return {
 		start: async () => {
 			await Promise.resolve();
