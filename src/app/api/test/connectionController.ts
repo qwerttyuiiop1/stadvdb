@@ -14,26 +14,42 @@ let masterIP = SELF_IP;
 let readIP = SELF_IP;
 
 async function findMasterIp() {
-	const queries = IPS.map(ip => new Promise<string | null>((resolve) => {
-		const conn = mysql.createConnection({
+	const queries = IPS.map(async ip => {
+		const conn = await mysql.createConnection({
 			host: ip, user: ADMIN_USER, password: ADMIN_PASSWORD
 		});
-	}));
+		const [res] = await conn.query<any>("SELECT @@global.read_only AS a;");
+		conn.end();
+		return res[0].a === 0 ? ip : null;
+	})
 	const res = await Promise.all(queries);
 	return res.find(ip => ip !== null) || null;
 }
 async function findActiveServer() {
-	throw new Error("Not implemented");
+	const queries = IPS.map(async ip => {
+	  try {
+		const conn = await mysql.createConnection({
+			host: ip, user: ADMIN_USER, password: ADMIN_PASSWORD
+		});
+		await conn.ping()
+		conn.end();
+		return ip;
+	  } catch (e) {
+		return null;
+	  }
+	})
+	const res = await Promise.all(queries);
+	return res.find(ip => ip !== null) || null;
 }
 
 export interface Connection extends mysql.Connection {
-	sql: (sql: string[]) => { start: ()=>Promise<any[]> }
+	queryAll: (sql: string[]) => { start: ()=>Promise<any[]> }
 }
 async function connectDB (host: string) {
 	const ret = await mysql.createConnection({
 		host: host, user: USER, password: PASSWORD, database: DATABASE
 	}) as Connection;
-	ret.sql = sql => execute(ret, sql);
+	ret.queryAll = sql => execute(ret, sql);
 	return ret;
 }
 const execute = (connection: mysql.Connection, sql: string[] | string): { start: ()=>Promise<any[]> } => {
@@ -45,7 +61,7 @@ const execute = (connection: mysql.Connection, sql: string[] | string): { start:
 			await Promise.resolve();
 			const res = [];
 			for (const s of sql)
-				res.push(await connection.query(s));
+				res.push((await connection.query(s))[0]);
 			return res;
 		}
 	}
@@ -54,15 +70,12 @@ export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
 			const ip = server === undefined ? readIP : IPS[server - 1];
-			console.log("Connecting to", ip);
 			const conn = await connectDB(ip);
-			console.log("Connected to", ip);
 			const ret = await func(conn);
-			console.log("Completed", ip);
 			conn.end();
 			return ret;
 		} catch (e: any) {
-			console.error(e);
+			// handle error
 		}
 	}
 	throw new Error("All servers are down");
