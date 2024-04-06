@@ -39,12 +39,12 @@ async function connectDB (host: string) {
 	const ret = mysql.createConnection({
 		host: host, user: USER, password: PASSWORD, database: DATABASE
 	}) as Connection;
-	await new Promise<void>((resolve, reject) => {
-		ret.connect(err => {
-			if (err) reject(err);
-			else resolve();
-		});
-	});
+	// await new Promise<void>((resolve, reject) => {
+	// 	ret.connect(err => {
+	// 		if (err) reject(err);
+	// 		else resolve();
+	// 	});
+	// });
 	ret.execute = sql => execute(ret, sql);
 	return ret;
 }
@@ -71,9 +71,9 @@ const execute = (connection: mysql.Connection, sql: string[] | string): { start:
 	}
 }
 export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server: undefined|1|2|3): Promise<T> => {
-	const ip = server === undefined ? readIP : IPS[server - 1];
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
+			const ip = server === undefined ? readIP : IPS[server - 1];
 			const conn = await connectDB(ip);
 			const ret = await func(conn);
 			conn.end();
