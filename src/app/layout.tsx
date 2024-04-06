@@ -16,6 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+	  <head>
+	    <script src="https://unpkg.com/@ungap/global-this@0.4.4/min.js" noModule async></script>
+	  </head>
       <body className={inter.className}>{children}</body>
     </html>
   );
