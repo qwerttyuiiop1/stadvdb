@@ -8,7 +8,7 @@ const ADMIN_USER = process.env.ADMIN_USER;
 const MAX_RETRIES = 3;
 if (!SELF_IP || !PASSWORD || !USER || !DATABASE || IPS.some(ip => !ip) || !ADMIN_PASSWORD || !ADMIN_USER)
 	throw new Error("Environment variables not provided");
-import mysql from "mysql";
+import mysql from "mysql2/promise";
 import { Awaitable } from "next-auth";
 let masterIP = SELF_IP;
 let readIP = SELF_IP;
@@ -17,12 +17,6 @@ async function findMasterIp() {
 	const queries = IPS.map(ip => new Promise<string | null>((resolve) => {
 		const conn = mysql.createConnection({
 			host: ip, user: ADMIN_USER, password: ADMIN_PASSWORD
-		});
-		conn.connect(err => {
-			if (err) return resolve(null);
-			conn.query("SELECT @@global.read_only AS a", (err, result) => {
-				resolve(err || result[0]?.a === 1 ? null : ip);
-			});
 		});
 	}));
 	const res = await Promise.all(queries);
@@ -33,28 +27,14 @@ async function findActiveServer() {
 }
 
 export interface Connection extends mysql.Connection {
-	execute: (sql: string[]) => { start: ()=>Promise<any[]> }
+	executeSql: (sql: string[]) => { start: ()=>Promise<any[]> }
 }
 async function connectDB (host: string) {
-	const ret = mysql.createConnection({
+	const ret = await mysql.createConnection({
 		host: host, user: USER, password: PASSWORD, database: DATABASE
 	}) as Connection;
-	await new Promise<void>((resolve, reject) => {
-		ret.connect(err => {
-			if (err) reject(err);
-			else resolve();
-		});
-	});
-	ret.execute = sql => execute(ret, sql);
+	ret.executeSql = sql => execute(ret, sql);
 	return ret;
-}
-async function query(sql: string, connection: mysql.Connection) {
-	return new Promise<any[]>((resolve, reject) => {
-		connection.query(sql, (err, result) => {
-			if (err) reject(err);
-			else resolve(result);
-		});
-	});
 }
 const execute = (connection: mysql.Connection, sql: string[] | string): { start: ()=>Promise<any[]> } => {
 	if (typeof sql === "string")
@@ -65,7 +45,7 @@ const execute = (connection: mysql.Connection, sql: string[] | string): { start:
 			await Promise.resolve();
 			const res = [];
 			for (const s of sql)
-				res.push(await query(s, connection));
+				res.push(await connection.query(s));
 			return res;
 		}
 	}
