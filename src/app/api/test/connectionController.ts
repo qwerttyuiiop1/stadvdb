@@ -10,7 +10,6 @@ if (!SELF_IP || !PASSWORD || !USER || !DATABASE || IPS.some(ip => !ip) || !ADMIN
 	throw new Error("Environment variables not provided");
 import mysql from "mysql";
 import { Awaitable } from "next-auth";
-import { promisify } from "util";
 let masterIP = SELF_IP;
 let readIP = SELF_IP;
 
@@ -80,7 +79,7 @@ export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server
 			conn.end();
 			return ret;
 		} catch (e) {
-			// handle error
+			console.error(e);
 		}
 	}
 	throw new Error("All servers are down");
