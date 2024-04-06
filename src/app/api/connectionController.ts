@@ -26,7 +26,7 @@ async function findMasterIp() {
 	return res.find(ip => ip !== null) || null;
 }
 async function electNewMaster() {
-	throw new Error('not implemented')
+	return '';
 }
 
 async function findActiveServer() {
@@ -97,11 +97,7 @@ export const write = async <T>(func: ((conn: Connection) => Awaitable<T>)): Prom
 			conn.end();
 			return ret;
 		} catch (e) {
-			const ip = await findMasterIp();
-			if (ip)
-				masterIP = ip
-			else
-				await electNewMaster();
+			masterIP = await findMasterIp() || await electNewMaster();
 		}
 	}
 	throw new Error("All servers are down");
