@@ -5,16 +5,10 @@ import { promisify } from "util";
 export const connectDB = (host: string | undefined, user: string | undefined) => {
 	if (!host || !user)
 		throw new Error("Host or user not provided");
-	console.log({
-		host: host,
-		user: user,
-		password: process.env.PASSWORD,
-		database: process.env.DATABASE
-	});
 	return mysql.createConnection({
 		host: host,
 		user: user,
-		password: process.env.PASSWORD,
+		password: process.env.DB_PASSWORD,
 		database: process.env.DATABASE
 	});
 }
