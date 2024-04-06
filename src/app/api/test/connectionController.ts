@@ -27,13 +27,13 @@ async function findActiveServer() {
 }
 
 export interface Connection extends mysql.Connection {
-	executeSql: (sql: string[]) => { start: ()=>Promise<any[]> }
+	sql: (sql: string[]) => { start: ()=>Promise<any[]> }
 }
 async function connectDB (host: string) {
 	const ret = await mysql.createConnection({
 		host: host, user: USER, password: PASSWORD, database: DATABASE
 	}) as Connection;
-	ret.executeSql = sql => execute(ret, sql);
+	ret.sql = sql => execute(ret, sql);
 	return ret;
 }
 const execute = (connection: mysql.Connection, sql: string[] | string): { start: ()=>Promise<any[]> } => {

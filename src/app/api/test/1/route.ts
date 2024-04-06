@@ -10,7 +10,7 @@ export const GET = async () => {
 		SELECT * FROM foo;
 		COMMIT;
 	`.split("\n");
-	const handler = (conn: Connection) => conn.execute(query).start();
+	const handler = (conn: Connection) => conn.sql(query).start();
 	const queries = [read(handler, 1)];
 	const res = await Promise.all(queries);
 	return NextResponse.json(res.map(r => r[1]));
