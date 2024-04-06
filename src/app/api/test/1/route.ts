@@ -12,6 +12,7 @@ export const GET = async (req: NextRequest) => {
 		COMMIT;
 	`.split("\n");
 	const e1 = await execute(query, read(process.env.NODE_1_IP)).start();
+	console.log(e1)
 	return NextResponse.json({test: e1});
   } catch (e) {
 	return NextResponse.json(e, { status: 500 });
