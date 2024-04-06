@@ -82,7 +82,7 @@ export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server
 			conn.end();
 			return ret;
 		} catch (e: any) {
-			console.error(e.message);
+			console.error(e);
 		}
 	}
 	throw new Error("All servers are down");
