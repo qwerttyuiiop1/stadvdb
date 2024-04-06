@@ -11,7 +11,7 @@ if (!SELF_IP || !PASSWORD || !USER || !DATABASE || IPS.some(ip => !ip) || !ADMIN
 import mysql from "mysql";
 import { Awaitable } from "next-auth";
 import { promisify } from "util";
-let masterIP = ''; // lateinit
+let masterIP = SELF_IP;
 let readIP = SELF_IP;
 
 async function findMasterIp() {
