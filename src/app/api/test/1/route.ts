@@ -11,7 +11,7 @@ export const GET = async () => {
 		COMMIT;
 	`.split("\n");
 	const handler = (conn: Connection) => conn.execute(query).start();
-	const queries = [read(handler, 1), read(handler, 2), read(handler, 3)];
+	const queries = [read(handler, 1)];
 	const res = await Promise.all(queries);
 	return NextResponse.json(res.map(r => r[1]));
   } catch (e) {
