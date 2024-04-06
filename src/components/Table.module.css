@@ -5,6 +5,7 @@
     border-collapse: collapse;
     padding: 10px;
     background-color: #b8b8b8;
+    z-index: 1;
 }
 
 .table_container {
@@ -16,6 +17,34 @@
   border: 1px solid black;
   border-collapse: collapse;
   padding: 10px;
-  max-width: 10rem;
+  max-width: 9rem;
   word-wrap: break-word;
+  background-color: #ededed;
+}
+
+.actionCell {
+  position: sticky;
+  right: 0;
+  text-align: center;
+}
+
+.table_container td button {
+  height: 2rem;
+  width: 4rem;
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 2px;
+  font-weight: bold;
+}
+
+.table_container td button:hover {
+  opacity: 0.8;
+}
+
+.editButton {
+  background-color: #61DD41;
+}
+
+.deleteButton {
+  background-color: #FF4A4A;
 }

@@ -15,6 +15,7 @@ const TableHeader = () => {
           <th className={styles.th}>type</th>
           <th className={styles.th}>virtual</th>
           <th className={styles.th}>apptid</th>
+          <th className={`${styles.th} ${styles.actionCell}`}>Actions</th>
         </tr>
       </thead>
     );

@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './Table.module.css'
 
 export interface Appointment {
     pxid: string;
@@ -26,6 +27,10 @@ const TableRow: React.FC<{ data: Appointment }> = ({ data }) => {
         <td>{data.type}</td>
         <td>{data.virtual}</td>
         <td>{data.apptid}</td>
+        <td className={styles.actionCell}>
+            <button className={styles.editButton}>Edit</button>
+            <button className={styles.deleteButton}>Delete</button>
+        </td>
       </tr>
     );
 }
