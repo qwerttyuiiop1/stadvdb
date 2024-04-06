@@ -49,17 +49,24 @@ async function connectDB (host: string) {
 	ret.execute = sql => execute(ret, sql);
 	return ret;
 }
+async function query(sql: string, connection: mysql.Connection) {
+	return new Promise<any[]>((resolve, reject) => {
+		connection.query(sql, (err, result) => {
+			if (err) reject(err);
+			else resolve(result);
+		});
+	});
+}
 const execute = (connection: mysql.Connection, sql: string[] | string): { start: ()=>Promise<any[]> } => {
 	if (typeof sql === "string")
 		sql = [sql];
 	sql = sql.map(s => s.trim()).filter(s => s.length > 0);
-	const query = promisify(connection.query).bind(connection);
 	return {
 		start: async () => {
 			await Promise.resolve();
 			const res = [];
 			for (const s of sql)
-				res.push(await query(s));
+				res.push(await query(s, connection));
 			return res;
 		}
 	}
