@@ -39,12 +39,12 @@ async function connectDB (host: string) {
 	const ret = mysql.createConnection({
 		host: host, user: USER, password: PASSWORD, database: DATABASE
 	}) as Connection;
-	// await new Promise<void>((resolve, reject) => {
-	// 	ret.connect(err => {
-	// 		if (err) reject(err);
-	// 		else resolve();
-	// 	});
-	// });
+	await new Promise<void>((resolve, reject) => {
+		ret.connect(err => {
+			if (err) reject(err);
+			else resolve();
+		});
+	});
 	ret.execute = sql => execute(ret, sql);
 	return ret;
 }
@@ -74,12 +74,15 @@ export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
 			const ip = server === undefined ? readIP : IPS[server - 1];
+			console.log("Connecting to", ip);
 			const conn = await connectDB(ip);
+			console.log("Connected to", ip);
 			const ret = await func(conn);
+			console.log("Completed", ip);
 			conn.end();
 			return ret;
-		} catch (e) {
-			console.error(e);
+		} catch (e: any) {
+			console.error(e.message);
 		}
 	}
 	throw new Error("All servers are down");
