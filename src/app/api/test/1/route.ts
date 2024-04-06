@@ -11,11 +11,8 @@ export const GET = async (req: NextRequest) => {
 		SELECT * FROM foo;
 		COMMIT;
 	`.split("\n");
-	const e1 = execute(query, read(process.env.NODE_1_IP));
-	const e2 = execute(query, read(process.env.NODE_2_IP));
-	const e3 = execute(query, read(process.env.NODE_3_IP));
-	const res = await Promise.all([e1.start(), e2.start(), e3.start()]);
-	return NextResponse.json(res);
+	const e1 = await execute(query, read(process.env.NODE_1_IP)).start();
+	return NextResponse.json({test: e1});
   } catch (e) {
 	return NextResponse.json(e, { status: 500 });
   }
