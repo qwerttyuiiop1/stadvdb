@@ -5,6 +5,7 @@ import { execute, readConnection as read } from "../db";
 // Concurrent transactions in two or more nodes are reading the same data item.
 export const GET = async (req: NextRequest) => {
   try {
+	console.log('Executing test 1');
 	const query = `
 		START TRANSACTION;
 		SELECT * FROM foo;
