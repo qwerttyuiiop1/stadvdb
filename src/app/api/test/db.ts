@@ -14,6 +14,17 @@ export const connectDB = (host: string | undefined, user: string | undefined) =>
 }
 export const readConnection = (host: string | undefined) => connectDB(host, process.env.READ_USER)
 export const writeConnection = (host: string | undefined) => connectDB(host, process.env.WRITE_USER)
+export const query = (sql: string, connection: mysql.Connection): Promise<any> => {
+	return new Promise((resolve, reject) => {
+		connection.query(sql, (err, result) => {
+			if (err)
+				reject(err);
+			else
+				resolve(result);
+		});
+	});
+}
+
 export const execute = (sql: string[] | string, connection: mysql.Connection): { start: ()=>Promise<any[]> } => {
 	const query = promisify(connection.query).bind(connection);
 	if (typeof sql === "string")
@@ -24,6 +35,7 @@ export const execute = (sql: string[] | string, connection: mysql.Connection): {
 			const res = [];
 			for (const s of sql)
 				res.push(await query(s));
+			console.log(res);
 			return res;
 		}
 	}
