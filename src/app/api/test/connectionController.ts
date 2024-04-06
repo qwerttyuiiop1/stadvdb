@@ -22,7 +22,7 @@ async function findMasterIp() {
 		conn.connect(err => {
 			if (err) return resolve(null);
 			conn.query("SELECT @@global.read_only AS a", (err, result) => {
-				resolve(err || result[0]?.a === 0 ? null : ip);
+				resolve(err || result[0]?.a === 1 ? null : ip);
 			});
 		});
 	}));
