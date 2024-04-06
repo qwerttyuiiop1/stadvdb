@@ -13,24 +13,3 @@
   height: 20rem;
 }
 
-.table_container {
-  overflow: auto;
-  width: 85%;
-}
-
-.table_container th {
-  position: sticky;
-  top: 0;
-  border: 1px solid black;
-  border-collapse: collapse;
-  padding: 10px;
-  background-color: #b8b8b8;
-}
-
-.table_container td {
-  border: 1px solid black;
-  border-collapse: collapse;
-  padding: 10px;
-  max-width: 10rem;
-  word-wrap: break-word;
-}

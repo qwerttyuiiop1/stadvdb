@@ -1,22 +1,6 @@
 import styles from "./page.module.css";
-
-const data = [
-  ['Data 1', 'Data 2', 'Data 3', 'Data 4', 'Data 5', 'Data 6', 'Data 7', 'Data 8', 'Data 9', 'Data 10'],
-  ['Data 1', 'Data 2', 'Data 3', 'Data 4', 'Data 5', 'Data 6', 'Data 7', 'Data 8', 'Data 9', 'Data 10']
-]
-
-interface Appointment {
-  pxid: string;
-  clinicid: string;
-  doctorid: string;
-  status: string;
-  queuedate: string | null;
-  starttime: string | null;
-  endtime: string | null;
-  type: string;
-  virtual: boolean | null;
-  apptid: string;
-}
+import Table from "@/components/Table";
+import { Appointment }  from '@/components/TableRow';
 
 const appointments: Appointment[] = [
   {
@@ -81,64 +65,6 @@ const appointments: Appointment[] = [
     apptid: "67E082BF267D1DEEE048310D30859880",
   },								
 ];
-
-const TableHeader = () => {
-  return(
-    <thead>
-      <tr>
-        <th>pxid</th>
-        <th>clinicid</th>
-        <th>doctorid</th>
-        <th>status</th>
-        <th>queuedate</th>
-        <th>starttime</th>
-        <th>endtime</th>
-        <th>type</th>
-        <th>virtual</th>
-        <th>apptid</th>
-      </tr>
-    </thead>
-  );
-}
-
-const TableRow: React.FC<{ data: Appointment }> = ({ data }) => {
-  return(
-    <tr>
-      <td>{data.pxid}</td>
-      <td>{data.clinicid}</td>
-      <td>{data.doctorid}</td>
-      <td>{data.status}</td>
-      <td>{data.queuedate}</td>
-      <td>{data.starttime}</td>
-      <td>{data.endtime}</td>
-      <td>{data.type}</td>
-      <td>{data.virtual}</td>
-      <td>{data.apptid}</td>
-    </tr>
-  );
-}
-
-const TableBody: React.FC<{ data: Appointment[] }> = ( {data} ) => {
-  return(
-    <tbody>
-      {data.map((row, index) => (
-        <TableRow key={index} data={row} />
-      )
-      )}
-    </tbody>
-  );
-}
-
-const Table: React.FC<{ data: Appointment[] }> = ( {data} ) => {
-  return(
-    <div className={styles.table_container}>
-      <table>
-        <TableHeader />
-        <TableBody data={data} />
-      </table>
-    </div>
-  );
-}
 
 // const Form = () => {
 //   return(
