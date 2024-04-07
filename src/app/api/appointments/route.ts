@@ -4,7 +4,7 @@ import { read } from "@connect";
 export const GET = async () => {
   try {
 	const res = await read(async conn =>
-		conn.sql("SELECT * FROM appointments").start()
+		conn.sql("SELECT * FROM appointments")
 	)
 	return NextResponse.json({ appointments: res });
   } catch (e) {

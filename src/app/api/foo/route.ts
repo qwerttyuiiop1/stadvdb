@@ -4,7 +4,7 @@ import { read, write } from "@connect";
 export const GET = async () => {
   try {
 	const res = await read(conn =>
-		conn.sql("SELECT * FROM foo").start()
+		conn.sql("SELECT * FROM foo")
 	)
 	return NextResponse.json({ appointments: res });
   } catch (e) {
@@ -17,8 +17,8 @@ export const POST = async (req: NextRequest) => {
   try {
 	const { bar } = await req.json();
 	const res = await write(async conn => {
-		conn.query("INSERT INTO foo (bar) VALUES (?)", [bar])
-		return conn.sql("SELECT * FROM foo").start()
+		await conn.query("INSERT INTO foo (bar) VALUES (?)", [bar])
+		return conn.sql("SELECT * FROM foo")
     })
 	return NextResponse.json({ foo: res });
   } catch (e) {

@@ -47,32 +47,32 @@ async function findActiveServer() {
 	return res.find(ip => ip !== null) || null;
 }
 
-type foo = string | string[]
+interface sqlFunc {
+	(sql: string): Promise<any>
+	(sql: string[]): Promise<any[]>
+	(sql: string[], i: number): Promise<any>
+}
 export interface Connection extends mysql.Connection {
-	sql: <T extends foo>(sql: T) => { start: ()=>Promise<T extends string ? any : any[]> }
+	sql: sqlFunc
 }
 async function connectDB(host: string) {
 	const ret = await mysql.createConnection({
 		host: host, user: USER, password: PASSWORD, database: DATABASE
 	}) as Connection;
-	ret.sql = sql => execute(ret, sql);
+	ret.sql = ((sql, i) => execute(ret, sql, i)) as sqlFunc;
 	return ret;
 }
-const execute = (connection: mysql.Connection, sql: string[] | string): { start: ()=>Promise<any[]> } => {
-	let single = false;
+const execute = async (connection: mysql.Connection, sql: string[] | string, i: number | undefined): Promise<any> => {
 	if (typeof sql === "string") {
 		sql = [sql];
-		single = true;
+		i = 0;
 	}
 	sql = sql.map(s => s.trim()).filter(s => s.length > 0);
-	return {
-		start: async () => {
-			const res = [];
-			for (const s of sql)
-				res.push((await connection.query(s) as any)[0][0]);
-			return single ? res[0] : res;
-		}
-	}
+	const res = [];
+	for (const s of sql)
+		res.push((await connection.query(s) as any)[0][0]);
+	if (i === undefined) return res;
+	return res[(i + res.length) % res.length];
 }
 export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server: undefined|1|2|3 = undefined): Promise<T> => {
 	const max_retries = server === undefined ? MAX_RETRIES : 1;
@@ -83,8 +83,8 @@ export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server
 			const ret = await func(conn);
 			conn.end();
 			return ret;
-		} catch (e: any) {
-			readIP = await findActiveServer() || readIP;
+		} catch (e) {
+			// handle error
 		}
 	}
 	throw new Error("All servers are down");
@@ -97,7 +97,7 @@ export const write = async <T>(func: ((conn: Connection) => Awaitable<T>)): Prom
 			conn.end();
 			return ret;
 		} catch (e) {
-			masterIP = await findMasterIp() || await electNewMaster();
+			// handle error
 		}
 	}
 	throw new Error("All servers are down");
