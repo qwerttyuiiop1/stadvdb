@@ -13,23 +13,33 @@ import { Awaitable } from "next-auth";
 let masterIP = SELF_IP;
 let readIP = SELF_IP;
 
-async function findMasterIp() {
+let refresh_master_running: Promise<void> | null = null;
+async function _refresMasterIp() {	
 	const queries = IPS.map(async ip => {
+	  try {
 		const conn = await mysql.createConnection({
 			host: ip, user: ADMIN_USER, password: ADMIN_PASSWORD
 		});
 		const [res] = await conn.query<any>("SELECT @@global.read_only AS a;");
 		conn.end();
 		return res[0].a === 0 ? ip : null;
+	  } catch (e) {
+		return null;
+	  }
 	})
 	const res = await Promise.all(queries);
-	return res.find(ip => ip !== null) || null;
+	masterIP = res.find(ip => ip !== null) || masterIP;
 }
-async function electNewMaster() {
-	return '';
+export const refreshMasterIp = async () => {
+  try {
+	if (refresh_master_running) return refresh_master_running;
+	await (refresh_master_running = _refresMasterIp());
+  } finally {
+	refresh_master_running = null;
+  }
 }
-
-async function findActiveServer() {
+let refresh_read_running: Promise<void> | null = null;
+async function _refreshReadIp() {
 	const queries = IPS.map(async ip => {
 	  try {
 		const conn = await mysql.createConnection({
@@ -39,12 +49,26 @@ async function findActiveServer() {
 		conn.end();
 		return ip;
 	  } catch (e) {
-		console.error(e)
 		return null;
 	  }
 	})
-	const res = await Promise.all(queries);
-	return res.find(ip => ip !== null) || null;
+	const res = await Promise.all(queries)
+	const ips = res.filter(ip => ip !== null) as string[];
+	if (ips.includes(SELF_IP!))
+		readIP = SELF_IP!;
+	else
+		readIP = ips[Math.floor(Math.random() * ips.length)];
+}
+export const refreshReadIp = async () => {
+  try {
+	if (refresh_read_running) return refresh_read_running;
+	await (refresh_read_running = _refreshReadIp());
+  } finally {
+	refresh_read_running = null;
+  }
+}
+async function electNewMaster() {
+	throw new Error("Not implemented");
 }
 
 interface sqlFunc {
@@ -92,7 +116,7 @@ export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server
 export const write = async <T>(func: ((conn: Connection) => Awaitable<T>)): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			const conn = await connectDB(masterIP);
+			const conn = await connectDB(masterIP!);
 			const ret = await func(conn);
 			conn.end();
 			return ret;

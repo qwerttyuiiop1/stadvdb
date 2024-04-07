@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
-import { exec } from "child_process";
+import { promisify } from "util";
+const exec = promisify(require("child_process").exec);
 
 // sudo systemctl start mysql
-// set global read_only = 1;
 // find and set master ip
+// set global read_only = 1;
 // start slave
 
 export const GET = async () => {
+  let { stdout, stderr } = await exec("sudo systemctl start mysql");
+  if (stderr) {
+	console.error(stderr);
+	return NextResponse.json({ success: false });
+  }
+  console.log(stdout);
+  
   return NextResponse.json({ success: true });
 }

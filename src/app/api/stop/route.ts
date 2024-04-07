@@ -1,17 +1,14 @@
 import { NextResponse } from "next/server";
-import { exec } from "child_process";
+import { promisify } from "util";
+const exec = promisify(require("child_process").exec);
 
 
 export const GET = async () => {
-  await new Promise((resolve, reject) => {
-	exec("sudo systemctl stop mysql", (error, stdout, stderr) => {
-	  if (error || stderr) {
-		console.error(`error: ${error || stderr}`);
-		return reject(error || stderr);
-	  }
-	  console.log(`stdout: ${stdout}`);
-	  resolve(stdout);
-	});
-  });
+  const { stdout, stderr } = await exec("sudo systemctl stop mysql");
+  if (stderr) {
+	console.error(stderr);
+	return NextResponse.json({ success: false });
+  }
+  console.log(stdout);
   return NextResponse.json({ success: true });
 }
