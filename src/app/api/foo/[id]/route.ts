@@ -14,7 +14,7 @@ export const GET = async (req: NextRequest, params: Params) => {
 		await conn.commit();
 		return res[0][0];
 	})
-	return NextResponse.json({ foo: res });
+	return NextResponse.json(res);
   } catch (e) {
 	console.error(e);
 	return NextResponse.json(e, { status: 500 });
@@ -31,7 +31,7 @@ export const PUT = async (req: NextRequest, params: Params) => {
 		await conn.commit();
 		return res[0][0];
 	})
-	return NextResponse.json({ foo: res });
+	return NextResponse.json(res);
   } catch (e) {
 	console.error(e);
 	return NextResponse.json(e, { status: 500 });
