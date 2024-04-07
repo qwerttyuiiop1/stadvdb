@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { promisify } from "util";
+import { admin } from "../connectionController";
 const exec = promisify(require("child_process").exec);
 
 // sudo systemctl start mysql
@@ -14,6 +15,8 @@ export const GET = async () => {
 	return NextResponse.json({ success: false });
   }
   console.log(stdout);
-  
+  await admin(async conn => {
+	const [res] = await conn.sql("SHOW MASTER STATUS;");
+  })
   return NextResponse.json({ success: true });
 }

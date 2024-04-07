@@ -67,9 +67,6 @@ export const refreshReadIp = async () => {
 	refresh_read_running = null;
   }
 }
-async function electNewMaster() {
-	throw new Error("Not implemented");
-}
 
 interface sqlFunc {
 	(sql: string): Promise<any>
