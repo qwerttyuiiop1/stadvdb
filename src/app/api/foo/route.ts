@@ -4,7 +4,11 @@ import { read, write } from "@connect";
 export const GET = async () => {
   try {
 	const res = await read(conn =>
-		conn.sql("SELECT * FROM foo")
+		conn.sql(`
+		START TRANSACTION;
+		SELECT * FROM foo;
+		COMMIT;
+		`.split("\n"), 1)
 	)
 	return NextResponse.json({ appointments: res });
   } catch (e) {
@@ -17,8 +21,11 @@ export const POST = async (req: NextRequest) => {
   try {
 	const { bar } = await req.json();
 	const res = await write(async conn => {
+		await conn.beginTransaction()
 		await conn.query("INSERT INTO foo (bar) VALUES (?)", [bar])
-		return conn.sql("SELECT * FROM foo")
+		const [res] = await conn.query(`SELECT * FROM foo WHERE bar = ?`, [bar])
+		await conn.commit()
+		return res;
     })
 	return NextResponse.json({ foo: res });
   } catch (e) {
