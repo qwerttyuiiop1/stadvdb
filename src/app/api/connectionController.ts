@@ -24,6 +24,16 @@ const debounce = <T>(func: () => Awaitable<T>) => {
 		}
 	}
 }
+async function ping(ip: string) {
+	try {
+		const conn = await connectAdmin(ip);
+		await conn.ping();
+		conn.end();
+		return true;
+	} catch (e) {
+		return false;
+	}
+}
 async function _refresMasterIp() {
 	const res = await read(conn =>
 		conn.sql("SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = \"PRIMARY\"")
@@ -32,16 +42,7 @@ async function _refresMasterIp() {
 }
 const refreshMasterIp = debounce(_refresMasterIp);
 async function _refreshReadIp() {
-	const queries = IPS.map(async ip => {
-	  try {
-		const conn = await connectAdmin(ip);
-		await conn.ping();
-		conn.end();
-		return ip;
-	  } catch (e) {
-		return null;
-	  }
-	})
+	const queries = IPS.map(async ip => await ping(ip) ? ip : null);
 	const res = await Promise.all(queries)
 	const ips = res.filter(ip => ip !== null) as string[];
 	if (ips.includes(SELF_IP!))
@@ -85,11 +86,14 @@ async function execute(connection: mysql.Connection, sql: string[] | string, i: 
 	if (i === undefined) return res;
 	return res[(i + res.length) % res.length];
 }
+const trySetReadIp = debounce(async () => {
+	if (await ping(SELF_IP))
+		readIP = SELF_IP;
+})
 export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server: undefined|number = undefined): Promise<T> => {
 	const max_retries = server === undefined ? MAX_RETRIES : 1;
-	// attempt to connect to self if available
 	if (readIP !== SELF_IP)
-		refreshReadIp();
+		trySetReadIp();
 	for (let i = 0; i < max_retries; i++) {
 		try {
 			const ip = server === undefined ? readIP : IPS[server - 1];
