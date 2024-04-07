@@ -1,5 +1,5 @@
-const SELF_IP = process.env.SELF_IP;
-const IPS = [process.env.NODE_1_IP, process.env.NODE_2_IP, process.env.NODE_3_IP] as string[];
+export const SELF_IP = process.env.SELF_IP;
+export const IPS = [process.env.NODE_1_IP, process.env.NODE_2_IP, process.env.NODE_3_IP] as string[];
 const PASSWORD = process.env.DB_PASSWORD;
 const USER = process.env.USER;
 const DATABASE = process.env.DATABASE;
