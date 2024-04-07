@@ -13,39 +13,29 @@ import { Awaitable } from "next-auth";
 let masterIP = SELF_IP;
 let readIP = SELF_IP;
 
-let refresh_master_running: Promise<void> | null = null;
-async function _refresMasterIp() {	
-	const queries = IPS.map(async ip => {
-	  try {
-		const conn = await mysql.createConnection({
-			host: ip, user: ADMIN_USER, password: ADMIN_PASSWORD
-		});
-		const [res] = await conn.query<any>("SELECT @@global.read_only AS a;");
-		conn.end();
-		return res[0].a === 0 ? ip : null;
-	  } catch (e) {
-		return null;
-	  }
-	})
-	const res = await Promise.all(queries);
-	masterIP = res.find(ip => ip !== null) || masterIP;
+const debounce = <T>(func: () => Awaitable<T>) => {
+	let running: Awaitable<T> | null = null;
+	return async () => {
+		if (running) return running;
+		try {
+			return await (running = func());
+		} finally {
+			running = null;
+		}
+	}
 }
-export const refreshMasterIp = async () => {
-  try {
-	if (refresh_master_running) return refresh_master_running;
-	await (refresh_master_running = _refresMasterIp());
-  } finally {
-	refresh_master_running = null;
-  }
+async function _refresMasterIp() {
+	const res = await read(conn =>
+		conn.sql("SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = \"PRIMARY\"")
+	)
+	masterIP = res[0].MEMBER_HOST;
 }
-let refresh_read_running: Promise<void> | null = null;
+const refreshMasterIp = debounce(_refresMasterIp);
 async function _refreshReadIp() {
 	const queries = IPS.map(async ip => {
 	  try {
-		const conn = await mysql.createConnection({
-			host: ip, user: ADMIN_USER, password: ADMIN_PASSWORD
-		});
-		await conn.ping()
+		const conn = await connectAdmin(ip);
+		await conn.ping();
 		conn.end();
 		return ip;
 	  } catch (e) {
@@ -59,14 +49,7 @@ async function _refreshReadIp() {
 	else
 		readIP = ips[Math.floor(Math.random() * ips.length)];
 }
-export const refreshReadIp = async () => {
-  try {
-	if (refresh_read_running) return refresh_read_running;
-	await (refresh_read_running = _refreshReadIp());
-  } finally {
-	refresh_read_running = null;
-  }
-}
+const refreshReadIp = debounce(_refreshReadIp);
 
 interface sqlFunc {
 	(sql: string): Promise<any>
@@ -83,7 +66,14 @@ async function connectDB(host: string) {
 	ret.sql = ((sql, i) => execute(ret, sql, i)) as sqlFunc;
 	return ret;
 }
-const execute = async (connection: mysql.Connection, sql: string[] | string, i: number | undefined): Promise<any> => {
+async function connectAdmin(host: string) {
+	const ret = await mysql.createConnection({
+		host: host, user: ADMIN_USER, password: ADMIN_PASSWORD
+	}) as Connection;
+	ret.sql = ((sql, i) => execute(ret, sql, i)) as sqlFunc;
+	return ret;
+}
+async function execute(connection: mysql.Connection, sql: string[] | string, i: number | undefined) {
 	if (typeof sql === "string") {
 		sql = [sql];
 		i = 0;
@@ -95,8 +85,11 @@ const execute = async (connection: mysql.Connection, sql: string[] | string, i: 
 	if (i === undefined) return res;
 	return res[(i + res.length) % res.length];
 }
-export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server: undefined|1|2|3 = undefined): Promise<T> => {
+export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server: undefined|number = undefined): Promise<T> => {
 	const max_retries = server === undefined ? MAX_RETRIES : 1;
+	// attempt to connect to self if available
+	if (readIP !== SELF_IP)
+		refreshReadIp();
 	for (let i = 0; i < max_retries; i++) {
 		try {
 			const ip = server === undefined ? readIP : IPS[server - 1];
@@ -104,8 +97,10 @@ export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server
 			const ret = await func(conn);
 			conn.end();
 			return ret;
-		} catch (e) {
-			// handle error
+		} catch (e: any) {
+			if (e.code !== "ECONNREFUSED")
+				throw e;
+			await refreshReadIp();
 		}
 	}
 	throw new Error("All servers are down");
@@ -117,18 +112,30 @@ export const write = async <T>(func: ((conn: Connection) => Awaitable<T>)): Prom
 			const ret = await func(conn);
 			conn.end();
 			return ret;
-		} catch (e) {
-			// handle error
+		} catch (e: any) {
+			console.error('TODO: test no write access code first', e);
+			throw e;
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR")
+				throw e;
+			await refreshMasterIp();
 		}
 	}
 	throw new Error("All servers are down");
 }
 export const admin = async <T>(func: ((conn: Connection) => Awaitable<T>)): Promise<T> => {
-	const conn = await mysql.createConnection({
-		host: SELF_IP, user: ADMIN_USER, password: ADMIN_PASSWORD
-	}) as Connection;
-	conn.sql = ((sql, i) => execute(conn, sql, i)) as sqlFunc;
-	const ret = await func(conn);
-	conn.end();
-	return ret;
+	for (let i = 0; i < MAX_RETRIES; i++) {
+		try {
+			const conn = await connectDB(masterIP!);
+			const ret = await func(conn);
+			conn.end();
+			return ret;
+		} catch (e: any) {
+			console.error('TODO: test no write access code first', e);
+			throw e;
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR")
+				throw e;
+			await refreshMasterIp();
+		}
+	}
+	throw new Error("All servers are down");
 }
