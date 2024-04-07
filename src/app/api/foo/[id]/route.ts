@@ -10,7 +10,7 @@ export const GET = async (req: NextRequest, params: Params) => {
 	const id = params.params.id;
 	const res = await read(async conn => {
 		const res = await conn.query<any>("SELECT * FROM foo WHERE id = ?", [id])
-		return res[0][0];
+		return res[0];
 	})
 	return NextResponse.json({ foo: res });
   } catch (e) {
