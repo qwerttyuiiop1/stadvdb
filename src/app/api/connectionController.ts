@@ -70,7 +70,7 @@ const execute = async (connection: mysql.Connection, sql: string[] | string, i: 
 	sql = sql.map(s => s.trim()).filter(s => s.length > 0);
 	const res = [];
 	for (const s of sql)
-		res.push((await connection.query(s) as any)[0][0]);
+		res.push((await connection.query(s))[0]);
 	if (i === undefined) return res;
 	return res[(i + res.length) % res.length];
 }
