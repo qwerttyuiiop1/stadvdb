@@ -46,7 +46,7 @@ export const DELETE = async (req: NextRequest, params: Params) => {
 		await conn.commit();
 		return res[0];
 	});
-	return NextResponse.json({ foo: res });
+	return NextResponse.json({ success: true });
   } catch (e) {
 	console.error(e);
 	return NextResponse.json(e, { status: 500 });

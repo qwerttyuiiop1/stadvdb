@@ -10,7 +10,7 @@ export const GET = async () => {
 		COMMIT;
 		`.split("\n"), 1)
 	)
-	return NextResponse.json({ appointments: res });
+	return NextResponse.json({ foo: res });
   } catch (e) {
 	console.error(e);
 	return NextResponse.json(e, { status: 500 });
