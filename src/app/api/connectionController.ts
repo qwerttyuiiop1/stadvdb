@@ -102,3 +102,12 @@ export const write = async <T>(func: ((conn: Connection) => Awaitable<T>)): Prom
 	}
 	throw new Error("All servers are down");
 }
+export const admin = async <T>(func: ((conn: Connection) => Awaitable<T>)): Promise<T> => {
+	const conn = await mysql.createConnection({
+		host: SELF_IP, user: ADMIN_USER, password: ADMIN_PASSWORD
+	}) as Connection;
+	conn.sql = ((sql, i) => execute(conn, sql, i)) as sqlFunc;
+	const ret = await func(conn);
+	conn.end();
+	return ret;
+}

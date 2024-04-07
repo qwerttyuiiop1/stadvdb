@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { IPS } from "@connect";
-import { equal } from "assert";
 
 // test 1:
 // Concurrent transactions in two or more nodes are reading the same data item.
