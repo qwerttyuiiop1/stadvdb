@@ -1,32 +1,46 @@
 .th {
     position: sticky;
     top: 0;
-    border: 1px solid black;
-    border-collapse: collapse;
     padding: 10px;
     background-color: #b8b8b8;
 }
 
-.table_container {
-  overflow-x: auto;
-  overflow-y: hidden;
-  height: 100%;
-  width: 80%;
+.tr:nth-child(even), .tr:nth-child(even) .rowNumberCell, .tr:nth-child(even) .actionCell {
+  background-color: #e8e8e8;
 }
 
-.table_container td {
-  border: 1px solid black;
-  border-collapse: collapse;
+.table_container {
+  height: 100%;
+  width: 80%;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0px 1px 4px 1px #ccced1;
+}
+
+.scroll_container {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.scroll_container td {
   padding: 10px;
   max-width: 9rem;
   word-wrap: break-word;
-  background-color: #ededed;
 }
 
 .actionCell {
   position: sticky;
   right: 0;
   text-align: center;
+  z-index: 1;
+  background-color: white;
+}
+
+.actionCellHeader {
+  background-color: #b8b8b8;
+  position: sticky;
+  right: 0;
   z-index: 1;
 }
 
@@ -35,18 +49,27 @@
   left: 0;
   text-align: center;
   z-index: 1;
+  background-color: white;
 }
 
-.table_container td button {
+.rowNumberCellHeader {
+  background-color: #b8b8b8;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.scroll_container td button {
   height: 2rem;
   width: 4rem;
   border-radius: 10px;
   cursor: pointer;
   margin: 2px;
   font-weight: bold;
+  border: none;
 }
 
-.table_container td button:hover {
+.scroll_container td button:hover {
   opacity: 0.8;
 }
 

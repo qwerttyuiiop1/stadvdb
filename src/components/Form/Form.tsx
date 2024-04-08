@@ -5,9 +5,10 @@ import FormBody from './FormBody';
 const Form: React.FC = () => {
     return(
       <form className={styles.form_container}>
-        <h2>Add</h2>
+        <h2>Add Row</h2>
+        <br/><hr/><br/>
         <FormBody />
-        <button type="submit"></button>
+        <button type="submit" className={styles.button}>Add</button>
       </form>
     );
 }

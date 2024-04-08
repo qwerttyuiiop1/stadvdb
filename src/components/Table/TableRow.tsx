@@ -53,7 +53,7 @@ const TableRow: React.FC<{ data: Appointment, rowNumber: number }> = ({ data, ro
 
   
     return(
-      <tr>
+      <tr className={styles.tr}>
         <td className={styles.rowNumberCell}>{rowNumber}</td>
         <td>{data.pxid}</td>
         <td>{data.clinicid}</td>
