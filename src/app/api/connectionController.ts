@@ -118,7 +118,7 @@ const trySetReadIp = debounce(async () => {
 	if (await ping(SELF_IP))
 		readIP = SELF_IP;
 })
-export const read = async <T>(func: F<T>, isolation: IsolationLevel = "READ COMMITTED") => {
+export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined) => {
 	if (readIP !== SELF_IP)
 		trySetReadIp();
 	for (let i = 0; i < MAX_RETRIES; i++) {
@@ -132,7 +132,7 @@ export const read = async <T>(func: F<T>, isolation: IsolationLevel = "READ COMM
 	}
 	throw new Error("All servers are down");
 }
-export const write = async <T>(func: F<T>, isolation: IsolationLevel = "READ COMMITTED"): Promise<T> => {
+export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
 			return await execDB(masterIP, isolation, func);
@@ -144,7 +144,7 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = "READ COM
 	}
 	throw new Error("All servers are down");
 }
-export const admin = async <T>(func: F<T>, isolation: IsolationLevel = "READ COMMITTED"): Promise<T> => {
+export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
 			return await execAdmin(masterIP, isolation, func);
