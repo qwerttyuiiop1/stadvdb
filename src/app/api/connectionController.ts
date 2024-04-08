@@ -67,8 +67,8 @@ const setUpTransaction = async (conn: Connection, isolation: IsolationLevel) => 
 		isolation = "REPEATABLE READ";
 	} 
 	if (isolation !== undefined) {
-		await conn.beginTransaction();
 		await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
+		await conn.beginTransaction();
 	}
 	conn.sql = ((sql, i) => execute(conn, sql, i)) as sqlFunc;
 	return conn;
@@ -118,7 +118,7 @@ const trySetReadIp = debounce(async () => {
 	if (await ping(SELF_IP))
 		readIP = SELF_IP;
 })
-export const read = async <T>(func: F<T>, isolation: IsolationLevel = "READ COMMITTED") => {
+export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined) => {
 	if (readIP !== SELF_IP)
 		trySetReadIp();
 	for (let i = 0; i < MAX_RETRIES; i++) {
@@ -132,7 +132,7 @@ export const read = async <T>(func: F<T>, isolation: IsolationLevel = "READ COMM
 	}
 	throw new Error("All servers are down");
 }
-export const write = async <T>(func: F<T>, isolation: IsolationLevel = "READ COMMITTED"): Promise<T> => {
+export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
 			return await execDB(masterIP, isolation, func);
@@ -144,7 +144,7 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = "READ COM
 	}
 	throw new Error("All servers are down");
 }
-export const admin = async <T>(func: F<T>, isolation: IsolationLevel = "READ COMMITTED"): Promise<T> => {
+export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
 			return await execAdmin(masterIP, isolation, func);
@@ -155,4 +155,20 @@ export const admin = async <T>(func: F<T>, isolation: IsolationLevel = "READ COM
 		}
 	}
 	throw new Error("All servers are down");
+}
+
+type ScopedConnection = Connection & {endScope: ()=>Awaitable<void>}
+interface ScopeRet {
+	(isolation: IsolationLevel): Promise<ScopedConnection>
+	(): Promise<ScopedConnection>
+}
+export const scope = <F extends typeof read> (queryFunc: F): ScopeRet => {
+	return (isolation: IsolationLevel = undefined) => new Promise((resolve) => {
+		queryFunc(async conn => {
+			await new Promise<void>(endScope => {
+				(conn as ScopedConnection).endScope = endScope;
+				resolve(conn as ScopedConnection);
+			})
+		}, isolation)
+	})
 }
