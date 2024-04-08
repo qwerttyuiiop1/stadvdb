@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { unlock } from "../lock/route";
+import { unlock } from "../lock/lock";
 
 export const GET = async () => {
   try {

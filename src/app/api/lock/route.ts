@@ -1,19 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { ScopedConnection, admin, scope } from "../connectionController"
-const adminScope = scope(admin);
+import { NextResponse } from "next/server";
+import { lock } from "./lock";
 
-let conn: ScopedConnection | null = null;
-const lock = async () => {
-	if (conn) return;
-	conn = await adminScope();
-	conn.query("FLUSH TABLES WITH READ LOCK;");
-}
-export const unlock = async () => {
-	if (!conn) return;
-	conn.query("UNLOCK TABLES;");
-	conn.endScope();
-	conn = null;
-}
 
 export const GET = async () => {
   try {
