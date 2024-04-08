@@ -15,7 +15,7 @@ export const GET = async () => {
 		body: JSON.stringify({ bar: "bar" })
 	});
 	const before = await fetch(`http://localhost:80/api/test/1`).then(r => r.json());
-	const queries = [] as any[];
+	let queries = [] as any[];
 	queries.push(fetch(`http://localhost:80/api/foo/1`, {
 		method: "PUT",
 		headers: {
@@ -23,7 +23,7 @@ export const GET = async () => {
 		},
 		body: JSON.stringify({ bar: IPS[0] })
 	}).then(r => r.json()))
-	queries.concat(IPS.map(ip => fetch(`http://${ip}:80/api/foo/1`).then(r => r.json())));
+	queries = queries.concat(IPS.map(ip => fetch(`http://${ip}:80/api/foo/1`).then(r => r.json())));
 	
 	const data = await Promise.all(queries);
 	return NextResponse.json({
