@@ -9,7 +9,7 @@ const MAX_RETRIES = 3;
 if (!SELF_IP || !PASSWORD || !USER || !DATABASE || IPS.some(ip => !ip) || !ADMIN_PASSWORD || !ADMIN_USER)
 	throw new Error("Environment variables not provided");
 import mysql from "mysql2/promise";
-import { Awaitable } from "next-auth";
+type Awaitable<T> = T | PromiseLike<T>;
 let masterIP = SELF_IP;
 let readIP = SELF_IP;
 
