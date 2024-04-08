@@ -17,7 +17,7 @@ export interface Appointment {
   }
 
 
-const TableRow: React.FC<{ data: Appointment }> = ({ data }) => {
+const TableRow: React.FC<{ data: Appointment, rowNumber: number }> = ({ data, rowNumber }) => {
 
   const handleEdit = async () => {
     try {
@@ -54,6 +54,7 @@ const TableRow: React.FC<{ data: Appointment }> = ({ data }) => {
   
     return(
       <tr>
+        <td className={styles.rowNumberCell}>{rowNumber}</td>
         <td>{data.pxid}</td>
         <td>{data.clinicid}</td>
         <td>{data.doctorid}</td>

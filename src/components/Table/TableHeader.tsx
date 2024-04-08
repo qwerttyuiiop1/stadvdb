@@ -5,6 +5,7 @@ const TableHeader = () => {
     return(
       <thead>
         <tr>
+          <th className={`${styles.th} ${styles.rowNumberCell}`}>No.</th>
           <th className={styles.th}>pxid</th>
           <th className={styles.th}>clinicid</th>
           <th className={styles.th}>doctorid</th>
