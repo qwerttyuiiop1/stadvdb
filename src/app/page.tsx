@@ -1,6 +1,7 @@
 import styles from "./page.module.css";
-import Table from "@/components/Table";
-import { Appointment }  from '@/components/TableRow';
+import Table from "@/components/Table/Table";
+import { Appointment }  from '@/components/Table/TableRow';
+import FormInput from "@/components/Form/FormInput";
 
 const appointments: Appointment[] = [
   {
@@ -66,20 +67,13 @@ const appointments: Appointment[] = [
   },								
 ];
 
-// const Form = () => {
+// const Form: React.FC = () => {
 //   return(
 //     <form>
-//       <label>Px Id</label>
-//       <input type="text" id="pxid"></input><br/>
-
-//       <label>Clinic Id</label>
-//       <input type="text" id="clinicid"></input><br/>
-
-//       <label>Doctor Id</label>
-//       <input type="text" id="doctorid"></input><br/>
-
-//       <label>Status</label>
-//       <input type="text" id="status"></input><br/>
+//       <FormInput label="pxid" id="pxid" /><br/>
+//       <FormInput label="clinicid" id="clinicid" /><br/>
+//       <FormInput label="doctorid" id="doctorid" /><br/>
+//       <FormInput label="status" id="status" /><br/>
 
 //       <button type="submit"></button>
 //     </form>
@@ -91,7 +85,7 @@ export default function Home() {
     <main className={styles.main}>
       <div className={styles.container}>
         <Table data={appointments} />
-        { /* <Form /> */ }
+        {/* <Form /> */}
       </div>
     </main>
   );
