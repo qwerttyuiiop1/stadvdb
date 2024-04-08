@@ -1,7 +1,7 @@
 export const SELF_IP = process.env.SELF_IP;
 export const IPS = [process.env.NODE_1_IP, process.env.NODE_2_IP, process.env.NODE_3_IP] as string[];
 const PASSWORD = process.env.DB_PASSWORD;
-const USER = process.env.USER;
+const USER = process.env.DB_USER;
 const DATABASE = process.env.DATABASE;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const ADMIN_USER = process.env.ADMIN_USER;
@@ -61,7 +61,6 @@ export interface Connection extends mysql.Connection {
 	sql: sqlFunc
 }
 async function connectDB(host: string) {
-	console.log(process.env);
 	const ret = await mysql.createConnection({
 		host: host, user: USER, password: PASSWORD, database: DATABASE
 	}) as Connection;
