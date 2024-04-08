@@ -67,8 +67,8 @@ const setUpTransaction = async (conn: Connection, isolation: IsolationLevel) => 
 		isolation = "REPEATABLE READ";
 	} 
 	if (isolation !== undefined) {
-		await conn.beginTransaction();
 		await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
+		await conn.beginTransaction();
 	}
 	conn.sql = ((sql, i) => execute(conn, sql, i)) as sqlFunc;
 	return conn;
