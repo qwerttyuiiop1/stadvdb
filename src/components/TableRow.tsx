@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import styles from './Table.module.css'
+import { PUT, DELETE } from '@/app/api/appointments/route';
 
 export interface Appointment {
     pxid: string;
@@ -14,7 +17,48 @@ export interface Appointment {
     apptid: string;
   }
 
+
 const TableRow: React.FC<{ data: Appointment }> = ({ data }) => {
+
+  const handleEdit = async () => {
+    try {
+      const response = await fetch(`http://localhost:80/api/appointments/${data.apptid}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const responseData = await response.json();
+      console.log(responseData);
+    } catch (error) {
+      console.error('There was an error with the fetch call:', error);
+    }
+  };
+  
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`http://localhost:80/api/appointments/${data.apptid}`, {
+        method: 'DELETE',
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const responseData = await response.json();
+      console.log(responseData);
+    } catch (error) {
+      console.error('There was an error with the fetch call:', error);
+    }
+  };
+
+  
     return(
       <tr>
         <td>{data.pxid}</td>
@@ -28,8 +72,8 @@ const TableRow: React.FC<{ data: Appointment }> = ({ data }) => {
         <td>{data.virtual}</td>
         <td>{data.apptid}</td>
         <td className={styles.actionCell}>
-            <button className={styles.editButton}>Edit</button>
-            <button className={styles.deleteButton}>Delete</button>
+          <button className={styles.editButton} onClick={handleEdit}>Edit</button>
+          <button className={styles.deleteButton} onClick={handleDelete}>Delete</button>
         </td>
       </tr>
     );
