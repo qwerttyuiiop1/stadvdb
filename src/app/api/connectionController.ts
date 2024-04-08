@@ -156,7 +156,7 @@ export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 	throw new Error("All servers are down");
 }
 
-type ScopedConnection = Connection & {endScope: ()=>Awaitable<void>}
+export type ScopedConnection = Connection & {endScope: ()=>Awaitable<void>}
 interface ScopeRet {
 	(isolation: IsolationLevel): Promise<ScopedConnection>
 	(): Promise<ScopedConnection>

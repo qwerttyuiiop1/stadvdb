@@ -1,10 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { admin } from "../connectionController"
+import { NextResponse } from "next/server";
+import { lock } from "./lock";
 
-export const GET = async (req: NextRequest) => {
-  await admin(async conn => {
-	conn.query("FLUSH TABLES WITH READ LOCK;");
-  });
-  return NextResponse.json({ success: true });
+
+export const GET = async () => {
+  try {
+  	await lock();
+  	return NextResponse.json({ success: true });
+  } catch (e) {
+	console.error(e);
+	return NextResponse.json({ success: false });
+  }
 }
 export const dynamic = "force-dynamic";
