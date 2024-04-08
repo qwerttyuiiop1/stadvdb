@@ -6,7 +6,7 @@ import { IPS } from "@connect";
 // assumption: all nodes are properly set-up and running
 export const GET = async () => {
   try {
-	const res = IPS.map(ip => fetch(`http://${ip}/api/foo/1`).then(r => r.json()));
+	const res = IPS.map(ip => fetch(`http://${ip}:80/api/foo/1`).then(r => r.json()));
 	const data = await Promise.all(res);
 	const strs = data.map(d => JSON.stringify(d));
 	return NextResponse.json({

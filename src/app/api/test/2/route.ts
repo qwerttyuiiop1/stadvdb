@@ -6,7 +6,7 @@ import { IPS } from "@connect";
 // assumption: all nodes are properly set-up and running
 export const GET = async () => {
   try {
-	await fetch(`http://${IPS[0]}/api/foo/1`, {
+	await fetch(`http://localhost:80/api/foo/1`, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json"
@@ -15,14 +15,14 @@ export const GET = async () => {
 	});
 	const before = await fetch(`/api/test/1`).then(r => r.json());
 	const queries = [] as any[];
-	queries.push(fetch(`http://${IPS[0]}/api/foo/1`, {
+	queries.push(fetch(`http://localhost:80/api/foo/1`, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({ bar: IPS[0] })
 	}).then(r => r.json()))
-	queries.concat(IPS.map(ip => fetch(`http://${ip}/api/foo/1`).then(r => r.json())));
+	queries.concat(IPS.map(ip => fetch(`http://${ip}:80/api/foo/1`).then(r => r.json())));
 	
 	const data = await Promise.all(queries);
 	return NextResponse.json({
