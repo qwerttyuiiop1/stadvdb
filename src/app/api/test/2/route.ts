@@ -5,7 +5,6 @@ import { IPS } from "@connect";
 // and the other concurrent transactions are reading the same data item.
 // assumption: all nodes are properly set-up and running
 export const GET = async () => {
-  console.log("test 2")
   try {
 	await fetch(`http://localhost:80/api/foo/1`, {
 		method: "PUT",
