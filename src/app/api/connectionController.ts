@@ -117,9 +117,7 @@ export const write = async <T>(func: ((conn: Connection) => Awaitable<T>)): Prom
 			conn.end();
 			return ret;
 		} catch (e: any) {
-			console.error('TODO: test no write access code first', e);
-			throw e;
-			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR")
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR" && e.code !== "ER_ACCESS_DENIED_ERROR")
 				throw e;
 			await refreshMasterIp();
 		}
@@ -134,9 +132,7 @@ export const admin = async <T>(func: ((conn: Connection) => Awaitable<T>)): Prom
 			conn.end();
 			return ret;
 		} catch (e: any) {
-			console.error('TODO: test no write access code first', e);
-			throw e;
-			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR")
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR" && e.code !== "ER_ACCESS_DENIED_ERROR")
 				throw e;
 			await refreshMasterIp();
 		}
