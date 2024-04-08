@@ -137,7 +137,7 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		try {
 			return await execDB(masterIP, isolation, func);
 		} catch (e: any) {
-			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR" && e.code !== "ER_ACCESS_DENIED_ERROR")
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
 			await refreshMasterIp();
 		}
@@ -149,7 +149,7 @@ export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		try {
 			return await execAdmin(masterIP, isolation, func);
 		} catch (e: any) {
-			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR" && e.code !== "ER_ACCESS_DENIED_ERROR")
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
 			await refreshMasterIp();
 		}
