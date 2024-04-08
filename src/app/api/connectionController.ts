@@ -36,7 +36,6 @@ async function _refresMasterIp() {
 	const res = await read(conn => {
 		return conn.sql("SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = \"PRIMARY\"")
 	}, undefined)
-	console.log('TODO: res', res);
 	masterIP = res[0].MEMBER_HOST;
 }
 const refreshMasterIp = debounce(_refresMasterIp);
