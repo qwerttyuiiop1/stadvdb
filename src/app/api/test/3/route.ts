@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { IPS } from "@connect";
-
-// test 2: Concurrent transactions in two or more nodes are writing (update / delete) the same data item.
+const desc = `
+test 2: Concurrent transactions in two or more nodes are writing (update / delete) the same data item.
+assumption: all nodes are properly set-up, running, and not locked
+`;
 export const GET = async () => {
   const shuffled = IPS.slice().sort(() => Math.random() - 0.5);
   try {
@@ -27,7 +29,8 @@ export const GET = async () => {
 
 	return NextResponse.json({
 		before,
-		after
+		after,
+		desc
 	});
   } catch (e) {
 	console.error(e);

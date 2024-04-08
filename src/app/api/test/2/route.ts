@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { IPS } from "@connect";
 
-// test 2: At least one transaction in the three nodes is writing (update / delete) 
-// and the other concurrent transactions are reading the same data item.
-// assumption: all nodes are properly set-up and running
+const desc = `
+test 2: At least one transaction in the three nodes is writing (update / delete) 
+and the other concurrent transactions are reading the same data item.
+assumption: all nodes are properly set-up, running, and not locked
+`
 export const GET = async () => {
   try {
 	await fetch(`http://localhost:80/api/foo/1`, {
@@ -28,7 +30,8 @@ export const GET = async () => {
 	return NextResponse.json({
 		write: data.slice(0, 1),
 		reads: data.slice(1),
-		before: before
+		before: before,
+		desc
 	});
   } catch (e) {
 	console.error(e);
