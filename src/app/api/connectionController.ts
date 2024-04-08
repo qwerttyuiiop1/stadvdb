@@ -156,3 +156,19 @@ export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 	}
 	throw new Error("All servers are down");
 }
+
+type ScopedConnection = Connection & {endScope: ()=>Awaitable<void>}
+interface ScopeRet {
+	(isolation: IsolationLevel): Promise<ScopedConnection>
+	(): Promise<ScopedConnection>
+}
+export const scope = <F extends typeof read> (queryFunc: F): ScopeRet => {
+	return (isolation: IsolationLevel = undefined) => new Promise((resolve) => {
+		queryFunc(async conn => {
+			await new Promise<void>(endScope => {
+				(conn as ScopedConnection).endScope = endScope;
+				resolve(conn as ScopedConnection);
+			})
+		}, isolation)
+	})
+}
