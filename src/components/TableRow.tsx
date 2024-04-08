@@ -2,7 +2,6 @@
 
 import React from 'react';
 import styles from './Table.module.css'
-import { PUT, DELETE } from '@/app/api/appointments/route';
 
 export interface Appointment {
     pxid: string;
@@ -22,41 +21,35 @@ const TableRow: React.FC<{ data: Appointment }> = ({ data }) => {
 
   const handleEdit = async () => {
     try {
-      const response = await fetch(`http://localhost:80/api/appointments/${data.apptid}`, {
-        method: 'POST',
+      const response: Response = await fetch('/api/appointments', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
       });
   
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const responseData = await response.json();
-      console.log(responseData);
+      // rest of your code...
     } catch (error) {
-      console.error('There was an error with the fetch call:', error);
+      console.error(error);
     }
-  };
+  }
   
   const handleDelete = async () => {
     try {
-      const response = await fetch(`http://localhost:80/api/appointments/${data.apptid}`, {
+      const response: Response = await fetch(`/api/appointments`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ apptid: data.apptid }),
       });
   
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const responseData = await response.json();
-      console.log(responseData);
+      // rest of your code...
     } catch (error) {
-      console.error('There was an error with the fetch call:', error);
+      console.error(error);
     }
-  };
+  }
 
   
     return(
