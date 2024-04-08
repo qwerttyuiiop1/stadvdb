@@ -14,7 +14,7 @@ export const GET = async () => {
 		},
 		body: JSON.stringify({ bar: "bar" })
 	});
-	const before = await fetch(`/api/test/1`).then(r => r.json());
+	const before = await fetch(`http://localhost:80/api/test/1`).then(r => r.json());
 	const queries = [] as any[];
 	queries.push(fetch(`http://localhost:80/api/foo/1`, {
 		method: "PUT",
