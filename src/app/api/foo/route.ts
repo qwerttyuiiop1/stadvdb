@@ -22,6 +22,7 @@ export const POST = async (req: NextRequest) => {
 	const { bar } = await req.json();
 	const res = await write(async conn => {
 		await conn.beginTransaction()
+		await conn.query("SET TRANSACTION ISOLATION LEVEL REPETABLE READ;")
 		await conn.query("INSERT INTO foo (bar) VALUES (?)", [bar])
 		const [res] = await conn.query(`SELECT * FROM foo WHERE bar = ?`, [bar])
 		await conn.commit()
