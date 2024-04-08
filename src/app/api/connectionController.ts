@@ -61,7 +61,7 @@ export interface Connection extends mysql.Connection {
 	sql: sqlFunc
 }
 async function connectDB(host: string) {
-	console.log(host, USER, PASSWORD, DATABASE);
+	console.log(process.env);
 	const ret = await mysql.createConnection({
 		host: host, user: USER, password: PASSWORD, database: DATABASE
 	}) as Connection;
