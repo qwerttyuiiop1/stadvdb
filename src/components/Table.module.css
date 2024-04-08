@@ -9,8 +9,10 @@
 }
 
 .table_container {
-  overflow: auto;
-  width: 85%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 100%;
+  width: 80%;
 }
 
 .table_container td {
