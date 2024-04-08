@@ -118,6 +118,8 @@ const trySetReadIp = debounce(async () => {
 		readIP = SELF_IP;
 })
 export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined) => {
+	if (isolation === "READ UNCOMMITTED")
+		return write(func, isolation);
 	if (readIP !== SELF_IP)
 		trySetReadIp();
 	for (let i = 0; i < MAX_RETRIES; i++) {
