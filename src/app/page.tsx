@@ -1,7 +1,7 @@
 import styles from "./page.module.css";
 import Table from "@/components/Table/Table";
 import { Appointment }  from '@/components/Table/TableRow';
-import FormInput from "@/components/Form/FormInput";
+import Form from '@/components/Form/Form'
 
 const appointments: Appointment[] = [
   {
@@ -67,25 +67,12 @@ const appointments: Appointment[] = [
   },								
 ];
 
-// const Form: React.FC = () => {
-//   return(
-//     <form>
-//       <FormInput label="pxid" id="pxid" /><br/>
-//       <FormInput label="clinicid" id="clinicid" /><br/>
-//       <FormInput label="doctorid" id="doctorid" /><br/>
-//       <FormInput label="status" id="status" /><br/>
-
-//       <button type="submit"></button>
-//     </form>
-//   );
-// }
-
 export default function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.container}>
         <Table data={appointments} />
-        {/* <Form /> */}
+        <Form />
       </div>
     </main>
   );

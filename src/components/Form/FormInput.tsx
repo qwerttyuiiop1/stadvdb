@@ -1,11 +1,9 @@
 import React from 'react';
+import styles from './Form.module.css';
 
-const FormInput: React.FC<{ label: string, id: string }> = ({ label, id }) => {
+const FormInput: React.FC<{ id: string }> = ({ id }) => {
     return (
-        <>
-            <label>{label}</label>
-            <input type="text" id={id}></input>
-        </>
+        <input type="text" id={id} className={styles.input}></input>
     );
 }
 
