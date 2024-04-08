@@ -12,3 +12,4 @@ export const GET = async () => {
   console.log(stdout);
   return NextResponse.json({ success: true });
 }
+export const dynamic = "force-dynamic";

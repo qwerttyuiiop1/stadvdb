@@ -1,15 +1,15 @@
 export const SELF_IP = process.env.SELF_IP;
 export const IPS = [process.env.NODE_1_IP, process.env.NODE_2_IP, process.env.NODE_3_IP] as string[];
 const PASSWORD = process.env.DB_PASSWORD;
-const USER = process.env.USER;
+const USER = process.env.DB_USER;
 const DATABASE = process.env.DATABASE;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const ADMIN_USER = process.env.ADMIN_USER;
-const MAX_RETRIES = 3;
+const MAX_RETRIES = 5;
 if (!SELF_IP || !PASSWORD || !USER || !DATABASE || IPS.some(ip => !ip) || !ADMIN_PASSWORD || !ADMIN_USER)
 	throw new Error("Environment variables not provided");
 import mysql from "mysql2/promise";
-import { Awaitable } from "next-auth";
+type Awaitable<T> = T | PromiseLike<T>;
 let masterIP = SELF_IP;
 let readIP = SELF_IP;
 
@@ -26,18 +26,17 @@ const debounce = <T>(func: () => Awaitable<T>) => {
 }
 async function ping(ip: string) {
 	try {
-		const conn = await connectAdmin(ip);
-		await conn.ping();
-		conn.end();
+		await execAdmin(ip, undefined, conn => conn.ping());
 		return true;
 	} catch (e) {
 		return false;
 	}
 }
 async function _refresMasterIp() {
-	const res = await read(conn =>
-		conn.sql("SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = \"PRIMARY\"")
-	)
+	const res = await read(conn => {
+		return conn.sql("SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = \"PRIMARY\"")
+	}, undefined)
+	console.log('TODO: res', res);
 	masterIP = res[0].MEMBER_HOST;
 }
 const refreshMasterIp = debounce(_refresMasterIp);
@@ -60,19 +59,26 @@ interface sqlFunc {
 export interface Connection extends mysql.Connection {
 	sql: sqlFunc
 }
-async function connectDB(host: string) {
-	const ret = await mysql.createConnection({
-		host: host, user: USER, password: PASSWORD, database: DATABASE
-	}) as Connection;
-	ret.sql = ((sql, i) => execute(ret, sql, i)) as sqlFunc;
-	return ret;
+type F<T> = (conn: Connection) => Awaitable<T>;
+type IsolationLevel = "READ UNCOMMITTED" | "READ COMMITTED" | "REPEATABLE READ" | "SERIALIZABLE READ" | undefined;
+const setUpTransaction = async (conn: Connection, isolation: IsolationLevel) => {
+	if (isolation === "SERIALIZABLE READ") {
+		await conn.query("FLUSH TABLES WITH READ LOCK;");
+		isolation = "REPEATABLE READ";
+	} 
+	if (isolation !== undefined) {
+		await conn.beginTransaction();
+		await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
+	}
+	conn.sql = ((sql, i) => execute(conn, sql, i)) as sqlFunc;
+	return conn;
 }
-async function connectAdmin(host: string) {
-	const ret = await mysql.createConnection({
-		host: host, user: ADMIN_USER, password: ADMIN_PASSWORD
-	}) as Connection;
-	ret.sql = ((sql, i) => execute(ret, sql, i)) as sqlFunc;
-	return ret;
+const endConnection = async (conn: Connection, isolation: IsolationLevel) => {
+	if (isolation === "SERIALIZABLE READ")
+		await conn.query("UNLOCK TABLES;");
+	if (isolation !== undefined)
+		await conn.commit();
+	await conn.end();
 }
 async function execute(connection: mysql.Connection, sql: string[] | string, i: number | undefined) {
 	if (typeof sql === "string") {
@@ -86,21 +92,38 @@ async function execute(connection: mysql.Connection, sql: string[] | string, i: 
 	if (i === undefined) return res;
 	return res[(i + res.length) % res.length];
 }
+async function execDB<T>(host: string, isolation: IsolationLevel, func: F<T>) {
+  const conn = await mysql.createConnection({
+	host: host, user: USER, password: PASSWORD, database: DATABASE
+  }) as Connection;
+  try {
+	await setUpTransaction(conn, isolation);
+	return await func(conn);
+  } finally {
+	await endConnection(conn, isolation);
+  }
+}
+async function execAdmin<T>(host: string, isolation: IsolationLevel, func: F<T>) {
+  const conn = await mysql.createConnection({
+	host: host, user: ADMIN_USER, password: ADMIN_PASSWORD
+  }) as Connection;
+  try {
+	await setUpTransaction(conn, isolation);
+	return await func(conn);
+  } finally {
+	await endConnection(conn, isolation);
+  }
+}
 const trySetReadIp = debounce(async () => {
 	if (await ping(SELF_IP))
 		readIP = SELF_IP;
 })
-export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server: undefined|number = undefined): Promise<T> => {
-	const max_retries = server === undefined ? MAX_RETRIES : 1;
+export const read = async <T>(func: F<T>, isolation: IsolationLevel = "READ COMMITTED") => {
 	if (readIP !== SELF_IP)
 		trySetReadIp();
-	for (let i = 0; i < max_retries; i++) {
+	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			const ip = server === undefined ? readIP : IPS[server - 1];
-			const conn = await connectDB(ip);
-			const ret = await func(conn);
-			conn.end();
-			return ret;
+			return await execDB(readIP, isolation, func)
 		} catch (e: any) {
 			if (e.code !== "ECONNREFUSED")
 				throw e;
@@ -109,34 +132,24 @@ export const read = async <T>(func: ((conn: Connection) => Awaitable<T>), server
 	}
 	throw new Error("All servers are down");
 }
-export const write = async <T>(func: ((conn: Connection) => Awaitable<T>)): Promise<T> => {
+export const write = async <T>(func: F<T>, isolation: IsolationLevel = "READ COMMITTED"): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			const conn = await connectDB(masterIP!);
-			const ret = await func(conn);
-			conn.end();
-			return ret;
+			return await execDB(masterIP, isolation, func);
 		} catch (e: any) {
-			console.error('TODO: test no write access code first', e);
-			throw e;
-			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR")
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR" && e.code !== "ER_ACCESS_DENIED_ERROR")
 				throw e;
 			await refreshMasterIp();
 		}
 	}
 	throw new Error("All servers are down");
 }
-export const admin = async <T>(func: ((conn: Connection) => Awaitable<T>)): Promise<T> => {
+export const admin = async <T>(func: F<T>, isolation: IsolationLevel = "READ COMMITTED"): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			const conn = await connectDB(masterIP!);
-			const ret = await func(conn);
-			conn.end();
-			return ret;
+			return await execAdmin(masterIP, isolation, func);
 		} catch (e: any) {
-			console.error('TODO: test no write access code first', e);
-			throw e;
-			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR")
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_DBACCESS_DENIED_ERROR" && e.code !== "ER_ACCESS_DENIED_ERROR")
 				throw e;
 			await refreshMasterIp();
 		}
