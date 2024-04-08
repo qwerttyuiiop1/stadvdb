@@ -7,3 +7,4 @@ export const GET = async (req: NextRequest) => {
   });
   return NextResponse.json({ success: true });
 }
+export const dynamic = "force-dynamic";
