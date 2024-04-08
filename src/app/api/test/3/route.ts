@@ -4,6 +4,7 @@ import { IPS } from "@connect";
 // test 2: Concurrent transactions in two or more nodes are writing (update / delete) the same data item.
 export const GET = async () => {
   console.log("test 3")
+  const shuffled = IPS.slice().sort(() => Math.random() - 0.5);
   try {
 	await fetch(`http://localhost:80/api/foo/1`, {
 		method: "PUT",
@@ -13,8 +14,8 @@ export const GET = async () => {
 		body: JSON.stringify({ bar: "bar" })
 	});
 	const before = await fetch(`http://localhost:80/api/test/1`).then(r => r.json());
-
-	const queries = IPS.map(ip => fetch(`http://${ip}:80/api/foo/1`, {
+	
+	const queries = shuffled.map(ip => fetch(`http://${ip}:80/api/foo/1`, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json"
