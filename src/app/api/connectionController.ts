@@ -64,6 +64,7 @@ async function connectDB(host: string) {
 	const ret = await mysql.createConnection({
 		host: host, user: USER, password: PASSWORD, database: DATABASE
 	}) as Connection;
+	console.log(host, USER, PASSWORD, DATABASE);
 	ret.sql = ((sql, i) => execute(ret, sql, i)) as sqlFunc;
 	return ret;
 }
