@@ -3,6 +3,7 @@ import { IPS } from "@connect";
 
 // test 2: Concurrent transactions in two or more nodes are writing (update / delete) the same data item.
 export const GET = async () => {
+  console.log("test 3")
   try {
 	await fetch(`http://localhost:80/api/foo/1`, {
 		method: "PUT",
