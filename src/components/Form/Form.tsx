@@ -8,7 +8,8 @@ const Form: React.FC = () => {
         <h2>Add Row</h2>
         <br/><hr/><br/>
         <FormBody />
-        <button type="submit" className={styles.button}>Add</button>
+        <button type="submit" className={styles.addButton}>Add</button>
+        <button type="reset" className={styles.discardButton}>Discard</button>
       </form>
     );
 }
