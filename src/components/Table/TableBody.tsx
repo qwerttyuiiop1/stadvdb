@@ -3,7 +3,7 @@ import TableRow, { Appointment }  from '@/components/Table/TableRow';
 
 const TableBody: React.FC<{
   data: Appointment[],
-  onEditClick: (appt: Appointment, rowNumber: number) => void,
+  onEditClick: (rowNumber: number) => void,
   onDeleteClick: (appt: Appointment) => void
 }> = ({ data, onEditClick, onDeleteClick }) => {
     return(

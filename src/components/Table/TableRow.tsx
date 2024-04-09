@@ -20,27 +20,22 @@ export interface Appointment {
 
 const TableRow: React.FC<{
   data: Appointment, rowNumber: number,
-  onEditClick: (appt: Appointment, rowNumber: number) => void,
+  onEditClick: (rowNumber: number) => void,
   onDeleteClick: (appt: Appointment) => void
 }> = ({ data, rowNumber, onEditClick, onDeleteClick }) => {
 
   const handleEdit = async () => {
-    onEditClick(data, rowNumber);
+    onEditClick(rowNumber);
   }
   
   const handleDelete = async () => {
     try {
-      const response: Response = await fetch(`/api/appointments`, {
+      const response: Response = await fetch(`/api/appointments/${data.apptid}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ apptid: data.apptid }),
       });
-
+	  if (!response.ok)
+		throw await response.json();
       onDeleteClick(data);
-  
-      // rest of your code...
     } catch (error) {
       console.error(error);
     }
