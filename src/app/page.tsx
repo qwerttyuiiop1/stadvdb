@@ -9,6 +9,7 @@ import Form from '@/components/Form/Form'
 export default function Home() {
   const [rowNumber, setrowNumber] = useState<number>(-1);
   const [appointments, setAppointments] = useState<Appointment[]>([])
+  console.log(appointments);
   const [page, setPage] = useState<number>(1);
   
   React.useEffect(() => {
