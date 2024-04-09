@@ -7,6 +7,9 @@ import { Appointment }  from '@/components/Table/TableRow';
 const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointment ) => void }> = ({ formData, setFormData }) => {
     return (
         <>
+            <FormLabel label="apptid" /><br/>
+            <FormInput id="apptid" value={formData.apptid} />
+            <br/><br/>
             <FormLabel label="pxid" /><br/>
             <FormInput id="pxid" defaultValue={formData.pxid} />
             <br/><br/>
@@ -56,9 +59,6 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
                 <option value="0">0</option>
                 <option value="1">1</option>
             </select>
-            <br/><br/>
-            <FormLabel label="apptid" /><br/>
-            <FormInput id="apptid" value={formData.apptid} />
         </>
     );
 }
