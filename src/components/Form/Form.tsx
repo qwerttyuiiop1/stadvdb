@@ -20,8 +20,7 @@ const Form: React.FC<{
         endtime: null,
         type: '',
         virtual: null,
-        apptid: '',
-		timequeued: null,
+        apptid: ''
     }), []);
 
     const [formMode, setFormMode] = useState<'add' | 'edit'>('add');

@@ -19,7 +19,6 @@ const sample_appointments: Appointment[] = [
     type: "Consultation",
     virtual: null,
     apptid: "C1CC0949B93D00A559F7A0BD38361E80",
-	timequeued: "2018-04-10 16:00:00",
   },
   {
     
@@ -34,7 +33,6 @@ const sample_appointments: Appointment[] = [
     type: "Inpatient",
     virtual: null,
     apptid: "6585A31C60A1886FBA1433C50012B504",
-	timequeued: "2018-04-10 16:00:00",
   },
   {
     pxid: "7C5C93809D626CC702D08F33985B2B58",
@@ -48,7 +46,6 @@ const sample_appointments: Appointment[] = [
     type: "Inpatient",
     virtual: null,
     apptid: "7250DCFF615E6580295C7E6ED4322371",
-	timequeued: "2018-04-10 16:00:00",
   },
   {
     pxid: "C300C2B9E0E5D4C46E8093BCDBFA05CA",
@@ -62,7 +59,6 @@ const sample_appointments: Appointment[] = [
     type: "Consultation",
     virtual: null,
     apptid: "F5BBDCC08E39332F0AC27BB95CF1396A",
-	timequeued: "2018-04-10 16:00:00",
   },
   {
     pxid: "E649637106C9182BD4FAD1592B57A4B9",
@@ -76,7 +72,6 @@ const sample_appointments: Appointment[] = [
     type: "Consultation",
     virtual: null,
     apptid: "67E082BF267D1DEEE048310D30859880",
-	timequeued: "2018-04-10 16:00:00",
   },	
   {
     pxid: "ABE33A26DE672C90C7723CC0C969F6D7",
@@ -90,7 +85,6 @@ const sample_appointments: Appointment[] = [
     type: "Consultation",
     virtual: 0,
     apptid: "3A7180C2F79177D754415AE9A662145F",
-	timequeued: "2018-04-10 16:00:00",
   },
   {
     pxid: "AEDCF41DC52D12E251432E7AD7F1B63D",
@@ -104,7 +98,6 @@ const sample_appointments: Appointment[] = [
     type: "Consultation",
     virtual: 1,
     apptid: "3C97ED8DEB47F647CCB03EBD4EF29454",
-	timequeued: "2018-04-10 16:00:00",
   },
 ];
 
