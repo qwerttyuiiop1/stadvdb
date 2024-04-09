@@ -4,11 +4,11 @@ import FormLabel from './FormLabel';
 import FormInput from './FormInput';
 import { Appointment }  from '@/components/Table/TableRow';
 
-const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointment ) => void }> = ({ formData, setFormData }) => {
+const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointment ) => void }> = ({ formData }) => {
     return (
         <>
             <FormLabel label="apptid" /><br/>
-            <FormInput id="apptid" value={formData.apptid} />
+            <FormInput id="apptid" defaultValue={formData.apptid} />
             <br/><br/>
             <FormLabel label="pxid" /><br/>
             <FormInput id="pxid" defaultValue={formData.pxid} />
