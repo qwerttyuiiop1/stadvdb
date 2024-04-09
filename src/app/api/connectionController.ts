@@ -10,14 +10,14 @@ if (!SELF_IP || !PASSWORD || !USER || !DATABASE || IPS.some(ip => !ip) || !ADMIN
 	throw new Error("Environment variables not provided");
 import mysql from "mysql2/promise";
 type Awaitable<T> = T | PromiseLike<T>;
-const debounce = <T>(func: () => Awaitable<T>) => {
+const debounce = <T>(func: () => Awaitable<T>, cache = 0) => {
 	let running: Awaitable<T> | null = null;
 	return async () => {
 		if (running) return running;
 		try {
 			return await (running = func());
 		} finally {
-			running = null;
+			setTimeout(() => running = null, cache);
 		}
 	}
 }
@@ -87,18 +87,20 @@ async function executeSql(connection: mysql.Connection, sql: string[] | string, 
 	return res[(i + res.length) % res.length];
 }
 async function executeTransaction<T>(conn: Connection, isolation: IsolationLevel, func: F<T>) {
+  let host = conn.config.host;
+  if (host === "localhost" || !host) host = SELF_IP!;
+  const isActive = getServers().then(ips => {
+	if (!ips.includes(host)) throw {code: "ECONNREFUSED"}
+  });
   try {
 	if (isolation !== undefined) {
 	  await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
 	  await conn.beginTransaction();
 	}
 	conn.sql = ((sql, i) => executeSql(conn, sql, i)) as sqlFunc;
-	let host = conn.config.host;
-	if (host === "localhost" || !host) host = SELF_IP!;
-	const isActive = getServers().then(ips => {
-		if (!ips.includes(host)) throw {code: "ECONNREFUSED"}
-    });
-	return await Promise.all([func(conn), isActive]);
+	const res = await func(conn);
+	await isActive;
+	return res;
   } catch (e) {
 	await conn.rollback();
 	throw e;
