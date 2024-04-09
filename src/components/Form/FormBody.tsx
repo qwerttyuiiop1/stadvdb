@@ -18,7 +18,7 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
             <br/><br/>
             <FormLabel label="status" /><br/>
             <select
-                id="type" className={styles.select} defaultValue={formData.status || ''}
+                id="status" className={styles.select} defaultValue={formData.status || ''}
                 required
             >
                 <option value=""></option>
