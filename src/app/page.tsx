@@ -51,7 +51,7 @@ export default function Home() {
       </div>
       <div className={styles.container}>
         <Table data={appointments} onEditClick={handleEditClick} onDelete={handleDelete} />
-        <Form data={rowNumber ? null :appointments[rowNumber-1]} mode={formMode} setFormMode={setFormMode} rowNumber={rowNumber} onUpdate={handleUpdate} onAdd={handleAdd} />
+        <Form data={rowNumber ? appointments[rowNumber-1] : null} mode={formMode} setFormMode={setFormMode} rowNumber={rowNumber} onUpdate={handleUpdate} onAdd={handleAdd} />
       </div>
     </main>
   );
