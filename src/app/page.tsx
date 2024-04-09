@@ -36,7 +36,7 @@ export default function Home() {
 	setrowNumber(-1);
   }
 
-
+  console.log(appointments);
 
   return (
     <main className={styles.main}>
