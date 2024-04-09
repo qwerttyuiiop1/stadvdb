@@ -1,9 +1,9 @@
 import { ScopedConnection, admin, scope } from "../connectionController"
 const adminScope = scope(admin);
 
-const global = globalThis as any;
-if (global.lock === undefined) {
-	global.lock = function() {
+const any = global as any;
+if (any.lock === undefined) {
+	any.lock = function() {
 		let conn: ScopedConnection | null = null;
 		const lock = async () => {
 			if (conn) return;
@@ -24,5 +24,5 @@ if (global.lock === undefined) {
 	}
 }
 
-export const lock = global.lock.lock as () => Promise<void>;
-export const unlock = global.lock.unlock as () => Promise<void>;
+export const lock = any.lock.lock as () => Promise<void>;
+export const unlock = any.lock.unlock as () => Promise<void>;
