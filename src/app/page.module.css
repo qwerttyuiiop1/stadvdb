@@ -15,5 +15,25 @@
 
 .main h1 {
   margin-bottom: 2rem;
+  display: inline-block;
 }
 
+.searchButton {
+  height: 3rem;
+  width: 6rem;
+  color: #7b7b7b;
+  border: 4px solid ;
+  border-radius: 20px;
+  background-color: white;
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 1rem;
+  right: 2.5%;
+  position: absolute;
+}
+
+.searchButton:hover {
+  cursor: pointer;
+  opacity: 0.8;
+  
+}

@@ -113,7 +113,10 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <h1>Appointments Table</h1>
+      <div className={styles.top_container}>
+        <h1>Appointments Table</h1>
+        <button className={styles.searchButton}>Search</button>
+      </div>
       <div className={styles.container}>
         <Table data={appointments} onEditClick={handleEdit} onDeleteClick={handleDelete} />
         <Form data={rowData} rowNumber={rowNumber}/>

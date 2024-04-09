@@ -31,7 +31,6 @@
 .addButton {
     height: 2.2rem;
     width: 4.5rem;
-    display: inline-block;
     color: white;
     background-color: #0080FF;
     font-size: 14px;
@@ -44,7 +43,6 @@
 .saveButton {
     height: 2.2rem;
     width: 4.5rem;
-    display: inline-block;
     color: white;
     background-color: #53db31;
     font-size: 14px;
@@ -57,7 +55,6 @@
 .discardButton {
     height: 2.2rem;
     width: 4.5rem;
-    display: inline-block;
     color: white;
     background-color: #FF4A4A;
     font-size: 14px;
