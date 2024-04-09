@@ -6,6 +6,7 @@ export const lock = async () => {
 	if (conn) return;
 	conn = await adminScope(undefined, 'self');
 	await conn.query("FLUSH TABLES WITH READ LOCK;");
+	console.log(conn);
 }
 export const unlock = async () => {
 	if (!conn) return;
