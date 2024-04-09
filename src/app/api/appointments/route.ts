@@ -30,6 +30,17 @@ export const POST = async (req: NextRequest) => {
         virtual,
       } = body as Appointment;
       const res = await write(async (conn) => {
+		const max_id = await conn.sql("SELECT MAX(apptid) as max_id FROM appointments");
+		// add 1 to 32 character hex string max_id
+		let apptid = max_id[0].max_id.split('');
+		for (let i = apptid.length - 1; i --> 0;) {
+			if (apptid[i] === 'F') {
+				apptid[i] = '0';
+			} else {
+				apptid[i] = String.fromCharCode(apptid[i].charCodeAt(0) + 1);
+				break;
+			}
+		}
         return await conn.query(
           "INSERT INTO appointments (pxid, clinicid, doctorid, status, queuedate, starttime, endtime, type, virtual) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
           [
