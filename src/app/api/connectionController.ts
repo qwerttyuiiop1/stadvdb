@@ -158,6 +158,7 @@ export const scope: Scope = (queryFunc) => {
 				(conn as ScopedConnection).endScope = endScope;
 				resolve(conn as ScopedConnection);
 			})
+			console.log("Scope ended");
 		}, ...params as any[])
 	})
 }
