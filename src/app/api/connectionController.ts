@@ -134,7 +134,7 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 	}
 	throw new Error("All servers are down");
 }
-export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined): Promise<T> => {
+export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined, server: 'master'|'self' = 'master'): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
 			return await execAdmin(masterIP, isolation, func);
@@ -148,17 +148,17 @@ export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 }
 
 export type ScopedConnection = Connection & {endScope: ()=>Awaitable<void>}
-interface ScopeRet {
-	(isolation: IsolationLevel): Promise<ScopedConnection>
-	(): Promise<ScopedConnection>
+type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => any ? P : never;
+interface ScopeRet <F extends typeof read> {
+	(...params: OmitFirstArg<F>): Promise<ScopedConnection>
 }
-export const scope = <F extends typeof read> (queryFunc: F): ScopeRet => {
-	return (isolation: IsolationLevel = undefined) => new Promise((resolve) => {
+export const scope = <F extends typeof read> (queryFunc: F): ScopeRet<F> => {
+	return (...params) => new Promise((resolve) => {
 		queryFunc(async conn => {
 			await new Promise<void>(endScope => {
 				(conn as ScopedConnection).endScope = endScope;
 				resolve(conn as ScopedConnection);
 			})
-		}, isolation)
+		}, ...params as any[])
 	})
 }
