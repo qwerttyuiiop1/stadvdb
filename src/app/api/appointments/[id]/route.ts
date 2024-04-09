@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { write } from "@connect";
+import { read, write } from "@connect";
 import { Appointment } from "@/components/Table/TableRow";
 
 type Params = {
@@ -7,7 +7,17 @@ type Params = {
 		apptid: string
 	}
 }
-
+export const GET = async (req: NextRequest, { params: {apptid} }: Params) => {
+	try {
+	  const res = await read(async conn => {
+		return conn.query("SELECT * FROM appointments WHERE apptid = ?", [apptid])
+	  }, "READ COMMITTED");
+	  return NextResponse.json({ appointment: res[0] });
+	} catch (e) {
+	  console.error(e);
+	  return NextResponse.json(e, { status: 500 });
+	}
+  }
 export const PUT = async (req: NextRequest, { params: {apptid} }: Params) => {
 	try {
 	  const body = await req.json();
@@ -15,7 +25,7 @@ export const PUT = async (req: NextRequest, { params: {apptid} }: Params) => {
 	  const res = await write(async conn => {
 		await conn.query("UPDATE appointments SET pxid = ?, clinicid = ?, doctorid = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?, type = ?, virtual = ? WHERE apptid = ?", [pxid, clinicid, doctorid, status, timequeued, queuedate, starttime, endtime, type, virtual, apptid])
 		return conn.query("SELECT * FROM appointments WHERE apptid = ?", [apptid]) as any;
-	  });
+	  }, "REPEATABLE READ");
 	  return NextResponse.json({ appointment: res[0][0] });
 	} catch (e) {
 	  console.error(e);
@@ -25,9 +35,9 @@ export const PUT = async (req: NextRequest, { params: {apptid} }: Params) => {
 
   export const DELETE = async (req: NextRequest, { params: {apptid} }: Params) => {
 	try {
-	  const res = await write(async conn =>
+	  const res = await write(async conn => {
 		conn.query("DELETE FROM appointments WHERE apptid = ?", [apptid])
-	  );
+	  }, "READ COMMITTED");
 	  return NextResponse.json({ message: 'Deleted successfully' });
 	} catch (e) {
 	  console.error(e);
