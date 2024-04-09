@@ -30,8 +30,35 @@ const Form: React.FC<{ data: Appointment | null, rowNumber: number }> = ({ data,
       }
     }, [data]);
 
+    const handleSubmit = async (event: React.FormEvent) => {
+      event.preventDefault();
+      
+      // Edit mode
+      if (formMode === 'edit') {
+        try {
+          const response: Response = await fetch('/api/appointments', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          });
+      
+          // rest of your code...
+        } catch (error) {
+          console.error(error);
+        }
+
+      // Add mode
+      } else {
+        
+      }
+    }
+
+
+
     return(
-      <form className={formMode === 'add' ? `${styles.form_container} ${styles.form_container_add}` : `${styles.form_container} ${styles.form_container_edit}`}>
+      <form onSubmit={handleSubmit} className={formMode === 'add' ? `${styles.form_container} ${styles.form_container_add}` : `${styles.form_container} ${styles.form_container_edit}`}>
         <h2>{formMode === 'add' ? 'Add Row' : `Edit - Row #${rowNumber}`}</h2>
         <br/><hr/><br/>
         <FormBody formData={formData} setFormData={setFormData} />

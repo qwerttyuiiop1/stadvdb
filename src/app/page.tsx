@@ -101,20 +101,6 @@ export default function Home() {
   const handleEdit = async ( data: Appointment, rowNumber: number ) => {
     setRowData(data);
     setrowNumber(rowNumber);
-
-    // try {
-    //   const response: Response = await fetch('/api/appointments', {
-    //     method: 'PUT',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(data),
-    //   });
-  
-    //   // rest of your code...
-    // } catch (error) {
-    //   console.error(error);
-    // }
   }
   
   const handleDelete = async ( data: Appointment ) => {
