@@ -138,9 +138,9 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		try {
 			return await execDB(masterIP, isolation, func);
 		} catch (e: any) {
-			console.log("!!!", e.code, e)
 			if (e.code !== "ECONNREFUSED" || e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
+			console.log("!!!", e.code, e)
 			await refreshMasterIp();
 		}
 	}
