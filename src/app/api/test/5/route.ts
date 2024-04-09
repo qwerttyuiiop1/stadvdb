@@ -3,18 +3,19 @@ import { IPS } from "../../connectionController";
 
 const desc = `
 Node 2 or Node 3 is unavailable during the execution of a transaction and then eventually comes back online
+central node refers to the current master at the time the test is run
 `
 
 export const GET = async () => {
   try {
-	const master = await fetch("http://localhost:80/api/master").then(r => r.json());
-	await fetch(`http://${master}:80/api/foo/1`, { 
+	await fetch(`http://localhost:80/api/foo/1`, { 
 		method: "PUT",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ bar: 'master' })
 	});
 	const before = await fetch(`http://localhost:80/api/foo/1`).then(r => r.json());
 
+	const master = await fetch("http://localhost:80/api/master").then(r => r.json());
 	const ips = IPS.filter(ip => ip !== master);
 	const ip = ips[Math.floor(Math.random() * ips.length)];
 

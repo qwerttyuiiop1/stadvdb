@@ -10,7 +10,7 @@ export const GET = async () => {
 	return NextResponse.json({
 	  desc,
 	  result: "This test is impossible to perform because Node 1 or 2 cannot write"
-		+ ", so it is impossible for the central node to be behind from Node 1 or 2."
+		+ ", so it is impossible for the master node to be behind from Node 1 or 2."
     });
   } catch (e) {
 	console.error(e);
