@@ -93,11 +93,6 @@ async function execDB<T>(host: string, isolation: IsolationLevel, func: F<T>) {
 	await setUpTransaction(conn, isolation);
 	console.error('!!!!!')
 	return await func(conn);
-  } catch (e: any) {
-	console.error('!!!!');
-	console.error(e.code, e);
-	await conn.rollback();
-	throw e;
   } finally {
 	console.error('!!!');
 	await endConnection(conn, isolation);
@@ -142,6 +137,7 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		try {
 			return await execDB(masterIP, isolation, func);
 		} catch (e: any) {
+			console.log('!!!');
 			if (e.code !== "ECONNREFUSED" || e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
 			console.log("Refreshing master ip: ", masterIP);
