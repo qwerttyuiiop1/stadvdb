@@ -12,7 +12,7 @@ export default function Home() {
   const [page, setPage] = useState<number>(1);
   
   React.useEffect(() => {
-	fetch('/api/appointments?limit=100&page=' + page)
+	fetch('/api/appointments?limit=15&page=' + page)
 	  .then(response => response.json())
 	  .then(data => setAppointments(data.appointments));
   }, [page]);
