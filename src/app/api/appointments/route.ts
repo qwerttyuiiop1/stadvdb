@@ -29,8 +29,8 @@ export const POST = async (req: NextRequest) => {
         type,
         virtual,
       } = body as Appointment;
-      const res = await write(async (conn) =>
-        conn.query(
+      const res = await write(async (conn) => {
+        return await conn.query(
           "INSERT INTO appointments (pxid, clinicid, doctorid, status, queuedate, starttime, endtime, type, virtual) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
           [
             pxid,
@@ -43,8 +43,9 @@ export const POST = async (req: NextRequest) => {
             type,
             virtual,
           ]
-        )
-      );
+        );
+
+	  });
       return NextResponse.json({ appointment: res });
     } catch (e) {
       console.error(e);
