@@ -60,20 +60,7 @@ export interface Connection extends mysql.Connection {
 }
 type F<T> = (conn: Connection) => Awaitable<T>;
 type IsolationLevel = "READ UNCOMMITTED" | "READ COMMITTED" | "REPEATABLE READ" | "SERIALIZABLE" | undefined;
-const setUpTransaction = async (conn: Connection, isolation: IsolationLevel) => {
-	if (isolation !== undefined) {
-		await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
-		await conn.beginTransaction();
-	}
-	conn.sql = ((sql, i) => execute(conn, sql, i)) as sqlFunc;
-	return conn;
-}
-const endConnection = async (conn: Connection, isolation: IsolationLevel) => {
-	if (isolation !== undefined)
-		await conn.commit();
-	await conn.end();
-}
-async function execute(connection: mysql.Connection, sql: string[] | string, i: number | undefined) {
+async function executeSql(connection: mysql.Connection, sql: string[] | string, i: number | undefined) {
 	if (typeof sql === "string") {
 		sql = [sql];
 		i = 0;
@@ -85,39 +72,41 @@ async function execute(connection: mysql.Connection, sql: string[] | string, i: 
 	if (i === undefined) return res;
 	return res[(i + res.length) % res.length];
 }
-async function execDB<T>(host: string, isolation: IsolationLevel, func: F<T>) {
-  const conn = await mysql.createConnection({
-	host: host, user: USER, password: PASSWORD, database: DATABASE
-  }) as Connection;
+async function executeTransaction<T>(conn: Connection, isolation: IsolationLevel, func: F<T>) {
   try {
-	await setUpTransaction(conn, isolation);
+	if (isolation !== undefined) {
+	  await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
+	  await conn.beginTransaction();
+	}
+	conn.sql = ((sql, i) => executeSql(conn, sql, i)) as sqlFunc;
 	return await func(conn);
   } catch (e) {
 	await conn.rollback();
 	throw e;
   } finally {
-	await endConnection(conn, isolation);
+	if (isolation !== undefined)
+	  await conn.commit();
+	await conn.end();
   }
+}
+async function execDB<T>(host: string, isolation: IsolationLevel, func: F<T>) {
+  const conn = await mysql.createConnection({
+	host: host, user: USER, password: PASSWORD, database: DATABASE
+  }) as Connection;
+  return executeTransaction(conn, isolation, func);
 }
 async function execAdmin<T>(host: string, isolation: IsolationLevel, func: F<T>) {
   const conn = await mysql.createConnection({
 	host: host, user: ADMIN_USER, password: ADMIN_PASSWORD
   }) as Connection;
-  try {
-	await setUpTransaction(conn, isolation);
-	return await func(conn);
-  } catch (e) {
-	await conn.rollback();
-	throw e;
-  } finally {
-	await endConnection(conn, isolation);
-  }
+  return executeTransaction(conn, isolation, func);
 }
 const trySetReadIp = debounce(async () => {
 	if (await ping(SELF_IP))
 		readIP = SELF_IP;
 })
 export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined) => {
+	// uncommitted writes are not possible in read-only nodes
 	if (isolation === "READ UNCOMMITTED")
 		return write(func, isolation);
 	if (readIP !== SELF_IP)
