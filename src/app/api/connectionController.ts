@@ -138,9 +138,8 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		try {
 			return await execDB(masterIP, isolation, func);
 		} catch (e: any) {
-			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
+			if (e.code !== "ECONNREFUSED" || e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
-			console.log("refreshing master ip")
 			await refreshMasterIp();
 		}
 	}
@@ -151,7 +150,7 @@ export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		try {
 			return await execAdmin(masterIP, isolation, func);
 		} catch (e: any) {
-			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
+			if (e.code !== "ECONNREFUSED" || e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
 			await refreshMasterIp();
 		}
