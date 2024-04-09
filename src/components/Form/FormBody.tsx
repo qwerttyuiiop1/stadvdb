@@ -54,7 +54,8 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
             </select>
             <br/><br/>
             <FormLabel label="virtual" /><br/>
-            <select id="virtual" className={styles.select} defaultValue={formData.virtual == null ? '' : formData.virtual}>
+            <select id="virtual" className={styles.select}>
+				<option value={formData.virtual || ''}>{formData.virtual}</option>
                 <option value=""></option>
                 <option value="0">0</option>
                 <option value="1">1</option>
