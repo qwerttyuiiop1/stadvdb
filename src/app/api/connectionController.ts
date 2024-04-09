@@ -59,12 +59,8 @@ export interface Connection extends mysql.Connection {
 	sql: sqlFunc
 }
 type F<T> = (conn: Connection) => Awaitable<T>;
-type IsolationLevel = "READ UNCOMMITTED" | "READ COMMITTED" | "REPEATABLE READ" | "SERIALIZABLE READ" | undefined;
+type IsolationLevel = "READ UNCOMMITTED" | "READ COMMITTED" | "REPEATABLE READ" | "SERIALIZABLE" | undefined;
 const setUpTransaction = async (conn: Connection, isolation: IsolationLevel) => {
-	if (isolation === "SERIALIZABLE READ") {
-		await conn.query("FLUSH TABLES WITH READ LOCK;");
-		isolation = "REPEATABLE READ";
-	} 
 	if (isolation !== undefined) {
 		await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
 		await conn.beginTransaction();
@@ -73,8 +69,6 @@ const setUpTransaction = async (conn: Connection, isolation: IsolationLevel) => 
 	return conn;
 }
 const endConnection = async (conn: Connection, isolation: IsolationLevel) => {
-	if (isolation === "SERIALIZABLE READ")
-		await conn.query("UNLOCK TABLES;");
 	if (isolation !== undefined)
 		await conn.commit();
 	await conn.end();
@@ -98,6 +92,9 @@ async function execDB<T>(host: string, isolation: IsolationLevel, func: F<T>) {
   try {
 	await setUpTransaction(conn, isolation);
 	return await func(conn);
+  } catch (e) {
+	await conn.rollback();
+	throw e;
   } finally {
 	await endConnection(conn, isolation);
   }
@@ -109,6 +106,9 @@ async function execAdmin<T>(host: string, isolation: IsolationLevel, func: F<T>)
   try {
 	await setUpTransaction(conn, isolation);
 	return await func(conn);
+  } catch (e) {
+	await conn.rollback();
+	throw e;
   } finally {
 	await endConnection(conn, isolation);
   }
