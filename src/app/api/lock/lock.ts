@@ -10,8 +10,8 @@ export const lock = async () => {
 export const unlock = async () => {
 	if (!conn) return;
 	console.log("unlocking");
-	conn.query("UNLOCK TABLES;");
-	conn.endScope();
+	await conn.query("UNLOCK TABLES;");
+	await conn.endScope();
 	console.log("unlocked");
 	conn = null;
 }
