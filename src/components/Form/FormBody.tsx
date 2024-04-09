@@ -60,7 +60,7 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
             </select>
             <br/><br/>
             <FormLabel label="apptid" /><br/>
-            <FormInput id="apptid" defaultValue={formData.apptid} value={formData.apptid} disabled />
+            <FormInput id="apptid" value={formData.apptid} />
         </>
     );
 }
