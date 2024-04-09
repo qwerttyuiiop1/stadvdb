@@ -8,13 +8,13 @@ export interface Appointment {
     clinicid: string;
     doctorid: string;
     status: string;
+    timequeued: string | null;
     queuedate: string | null;
     starttime: string | null;
     endtime: string | null;
     type: string;
     virtual: number | null;
     apptid: string;
-	timequeued: string | null;
   }
 
 
@@ -55,6 +55,7 @@ const TableRow: React.FC<{
         <td>{data.clinicid}</td>
         <td>{data.doctorid}</td>
         <td>{data.status}</td>
+        <td>{data.timequeued}</td>
         <td>{data.queuedate}</td>
         <td>{data.starttime}</td>
         <td>{data.endtime}</td>

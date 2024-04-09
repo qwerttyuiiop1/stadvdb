@@ -30,6 +30,9 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
                 <option value="Cancel">Cancel</option>
             </select>
             <br/><br/>
+            <FormLabel label="timequeued" /><br/>
+            <FormInput id="timequeued" defaultValue={formData.timequeued || ''} />
+            <br/><br/>
             <FormLabel label="queuedate" /><br/>
             <FormInput id="queuedate" defaultValue={formData.queuedate || ''} />
             <br/><br/>

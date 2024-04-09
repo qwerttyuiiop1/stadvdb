@@ -11,6 +11,7 @@ const TableHeader = () => {
           <th className={styles.th}>clinicid</th>
           <th className={styles.th}>doctorid</th>
           <th className={styles.th}>status</th>
+          <th className={styles.th}>timequeued</th>
           <th className={styles.th}>queuedate</th>
           <th className={styles.th}>starttime</th>
           <th className={styles.th}>endtime</th>
