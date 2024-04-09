@@ -13,7 +13,7 @@ export const GET = async () => {
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ bar: 'master' })
 	});
-	const before = await fetch(`http://localhost:80/api/foo/1`).then(r => r.json());
+	const before = await fetch(`http://localhost:80/api/test/1`).then(r => r.json());
 
 	const master = await fetch("http://localhost:80/api/master").then(r => r.json());
 	const ips = IPS.filter(ip => ip !== master);
@@ -28,7 +28,7 @@ export const GET = async () => {
 
 	await fetch(`http://${ip}:80/api/start`);
 	await new Promise(r => setTimeout(r, 1000));
-	const after = await fetch(`http://localhost:80/api/foo/1`).then(r => r.json());
+	const after = await fetch(`http://localhost:80/api/test/1`).then(r => r.json());
 	return NextResponse.json({
 		before,
 		after,
