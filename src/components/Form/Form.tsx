@@ -84,7 +84,7 @@ const Form: React.FC<{
         <h2>{mode === 'add' ? 'Add Row' : mode === 'edit' ? `Edit - Row #${rowNumber}` : 'Search'}</h2>
         <br/><hr/><br/>
         <FormBody formData={formData} setFormData={setFormData} />
-        <button type="submit" className={mode === 'add' ? styles.addButton : mode === 'edit' ? styles.saveButton : styles.searchButton}>{mode === 'add' ? 'Add' : 'Search'}</button>
+        <button type="submit" className={mode === 'add' ? styles.addButton : mode === 'edit' ? styles.saveButton : styles.searchButton}>{mode === 'add' ? 'Add' : mode === 'edit' ? 'Edit' : 'Search'}</button>
         <button
           type="reset" className={styles.discardButton}
           onClick={() => {
