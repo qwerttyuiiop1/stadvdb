@@ -99,6 +99,7 @@ async function execDB<T>(host: string, isolation: IsolationLevel, func: F<T>) {
 	await conn.rollback();
 	throw e;
   } finally {
+	console.error('!!!');
 	await endConnection(conn, isolation);
   }
 }
