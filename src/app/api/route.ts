@@ -11,7 +11,7 @@ export const GET = async () => {
 	});
 	// await connection.query('DELETE FROM foo WHERE id = 12');
 	// await connection.query('UPDATE foo SET bar = "baz" WHERE id = 12');
-	// await connection.query('INSERT INTO foo (bar) VALUES ("baz")');
+	await connection.query('INSERT INTO foo (bar) VALUES ("baz")');
 	await connection.end();
 	return NextResponse.json({ desc: 'Delete successful' });
   } catch (e) {
