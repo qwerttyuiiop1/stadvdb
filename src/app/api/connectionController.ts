@@ -138,11 +138,9 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		try {
 			return await execDB(masterIP, isolation, func);
 		} catch (e: any) {
-			console.log("!!!", e.code, e)
-			if (e.code === "ECONNREFUSED" || e.code === "ER_OPTION_PREVENTS_STATEMENT")
-				await refreshMasterIp();
-			else
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
+			await refreshMasterIp();
 		}
 	}
 	throw new Error("All servers are down");
@@ -152,7 +150,7 @@ export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		try {
 			return await execAdmin(masterIP, isolation, func);
 		} catch (e: any) {
-			if (e.code !== "ECONNREFUSED" || e.code !== "ER_OPTION_PREVENTS_STATEMENT")
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
 			await refreshMasterIp();
 		}
