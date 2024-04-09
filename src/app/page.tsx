@@ -14,7 +14,7 @@ export default function Home() {
   React.useEffect(() => {
 	fetch('/api/appointments?limit=100&page=' + page)
 	  .then(response => response.json())
-	  .then(data => setAppointments(data));
+	  .then(data => setAppointments(data.appointments));
   }, [page]);
 
   const handleEditClick = async ( rowNumber: number ) => {
@@ -45,7 +45,7 @@ export default function Home() {
         <button className={styles.searchButton}>Search</button>
       </div>
       <div className={styles.container}>
-        <Table data={appointments} onEditClick={handleEditClick} onDeleteClick={handleDelete} />
+        <Table data={appointments} onEditClick={handleEditClick} onDelete={handleDelete} />
         <Form data={appointments[rowNumber]} rowNumber={rowNumber} onUpdate={handleUpdate} onAdd={handleAdd}/>
       </div>
     </main>

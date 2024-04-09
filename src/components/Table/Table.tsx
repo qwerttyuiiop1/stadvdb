@@ -7,14 +7,14 @@ import TableBody from '@/components/Table/TableBody';
 const Table: React.FC<{
   data: Appointment[],
   onEditClick: (rowNumber: number) => void,
-  onDeleteClick: (appt: Appointment) => void
-}> = ({ data, onEditClick, onDeleteClick }) => {
+  onDelete: (appt: Appointment) => void
+}> = ({ data, onEditClick, onDelete }) => {
     return(
       <div className={styles.table_container}>
         <div className={styles.scroll_container}>
           <table>
             <TableHeader />
-            <TableBody data={data} onEditClick={onEditClick} onDeleteClick={onDeleteClick} />
+            <TableBody data={data} onEditClick={onEditClick} onDelete={onDelete} />
           </table>
         </div>
       </div>

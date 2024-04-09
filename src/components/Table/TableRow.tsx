@@ -21,8 +21,8 @@ export interface Appointment {
 const TableRow: React.FC<{
   data: Appointment, rowNumber: number,
   onEditClick: (rowNumber: number) => void,
-  onDeleteClick: (appt: Appointment) => void
-}> = ({ data, rowNumber, onEditClick, onDeleteClick }) => {
+  onDelete: (appt: Appointment) => void
+}> = ({ data, rowNumber, onEditClick, onDelete }) => {
 
   const handleEdit = async () => {
     onEditClick(rowNumber);
@@ -35,7 +35,7 @@ const TableRow: React.FC<{
       });
 	  if (!response.ok)
 		throw await response.json();
-      onDeleteClick(data);
+      onDelete(data);
     } catch (error) {
       console.error(error);
     }

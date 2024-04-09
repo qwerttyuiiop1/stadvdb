@@ -51,7 +51,7 @@ const Form: React.FC<{
 		  const json = await response.json();
 		  if (!response.ok)
 			throw json;
-		  onUpdate(json);
+		  onUpdate(json.appointment);
         } catch (error) {
           console.error(error);
         }
@@ -67,7 +67,7 @@ const Form: React.FC<{
 		const json = await response.json();
 		if (!response.ok)
 		  throw json;
-		onAdd(json);
+		onAdd(json.appointment);
       }
     }
 
