@@ -92,6 +92,9 @@ async function execDB<T>(host: string, isolation: IsolationLevel, func: F<T>) {
   try {
 	await setUpTransaction(conn, isolation);
 	return await func(conn);
+  } catch (e) {
+	await conn.rollback();
+	throw e;
   } finally {
 	await endConnection(conn, isolation);
   }
@@ -123,6 +126,7 @@ export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined)
 		try {
 			return await execDB(readIP, isolation, func)
 		} catch (e: any) {
+			console.log("!!!", e.code, e)
 			if (e.code !== "ECONNREFUSED")
 				throw e;
 			await refreshReadIp();
