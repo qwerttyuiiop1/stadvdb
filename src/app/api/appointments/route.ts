@@ -28,6 +28,7 @@ export const POST = async (req: NextRequest) => {
         endtime,
         type,
         virtual,
+		timequeued,
       } = body as Appointment;
       const res = await write(async (conn) => {
 		const max_id = await conn.sql("SELECT MAX(apptid) as max_id FROM appointments");
@@ -42,7 +43,7 @@ export const POST = async (req: NextRequest) => {
 			}
 		}
 		return await conn.query(
-			"INSERT INTO appointments (pxid, clinicid, doctorid, status, queuedate, starttime, endtime, type, `virtual`, apptid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			"INSERT INTO appointments (pxid, clinicid, doctorid, status, queuedate, starttime, endtime, type, `virtual`, apptid, timequeued) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 			[
 			  pxid,
 			  clinicid,
@@ -53,7 +54,8 @@ export const POST = async (req: NextRequest) => {
 			  endtime,
 			  type,
 			  virtual,
-			  apptid.join(''), // Assuming apptid is an array that needs to be joined into a string
+			  apptid.join(''),
+			  timequeued
 			]
 		  );		  
 

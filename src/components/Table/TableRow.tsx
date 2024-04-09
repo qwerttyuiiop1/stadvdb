@@ -14,6 +14,7 @@ export interface Appointment {
     type: string;
     virtual: number | null;
     apptid: string;
+	timequeued: string | null;
   }
 
 
