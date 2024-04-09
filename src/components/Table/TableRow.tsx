@@ -33,8 +33,8 @@ const TableRow: React.FC<{
       const response: Response = await fetch(`/api/appointments/${data.apptid}`, {
         method: 'DELETE',
       });
-	  if (!response.ok)
-		throw await response.json();
+      if (!response.ok)
+        throw await response.json();
       onDelete(data);
     } catch (error) {
       console.error(error);

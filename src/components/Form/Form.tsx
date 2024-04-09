@@ -40,13 +40,17 @@ const Form: React.FC<{
 
     const handleSubmit = async (event: React.FormEvent) => {
       event.preventDefault();
+
 	  const data = {} as Appointment;
-	  for (const key in initialData) {
-		const value = (document.getElementById(key)! as HTMLInputElement).value;
-		(data as any)[key] = value;
-	  }
-	  data.apptid = formData.apptid;
-	  console.log('submit', data);
+      for (const key in initialData) {
+        const value = (document.getElementById(key)! as HTMLInputElement).value;
+        (data as any)[key] = value;
+      }
+
+      data.apptid = formData.apptid;
+      console.log('submit', data);
+
+      // Edit mode
       if (mode === 'edit') {
         try {
           const response: Response = await fetch(`/api/appointments/${data?.apptid}`, {
@@ -56,26 +60,28 @@ const Form: React.FC<{
             },
             body: JSON.stringify(data),
           });
-		  const json = await response.json();
-		  if (!response.ok)
-			throw json;
-		  onUpdate(json.appointment);
+
+        const json = await response.json();
+        if (!response.ok)
+          throw json;
+          onUpdate(json.appointment);
         } catch (error) {
           console.error(error);
         }
+
       // Add mode
       } else if (mode === 'add') {
         const response: Response = await fetch('/api/appointments', {
-		  method: 'POST',
-		  headers: {
-			'Content-Type': 'application/json',
-		  },
-		  body: JSON.stringify(formData),
-		});
-		const json = await response.json();
-		if (!response.ok)
-		  throw json;
-		onAdd(json.appointment);
+          method: 'POST',
+          headers: {
+          'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+        const json = await response.json();
+        if (!response.ok)
+          throw json;
+        onAdd(json.appointment);
       }
     }
 

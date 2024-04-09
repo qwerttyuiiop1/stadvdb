@@ -13,9 +13,9 @@ export default function Home() {
   const [page, setPage] = useState<number>(1);
   
   React.useEffect(() => {
-	fetch('/api/appointments?limit=15&page=' + page)
-	  .then(response => response.json())
-	  .then(data => setAppointments(data.appointments));
+    fetch('/api/appointments?limit=15&page=' + page)
+      .then(response => response.json())
+      .then(data => setAppointments(data.appointments));
   }, [page]);
 
   
@@ -28,14 +28,14 @@ export default function Home() {
     setAppointments(updatedAppointments);
   }
   const handleUpdate = async ( rowData: Appointment ) => {
-	const updatedAppointments = appointments.map(appointment => appointment.apptid === rowData.apptid ? rowData : appointment);
-	setAppointments(updatedAppointments);
-	setrowNumber(0);
+	  const updatedAppointments = appointments.map(appointment => appointment.apptid === rowData.apptid ? rowData : appointment);
+	  setAppointments(updatedAppointments);
+	  setrowNumber(0);
   }
   const handleAdd = async ( rowData: Appointment ) => {
-	const updatedAppointments = appointments.concat(rowData);
-	setAppointments(updatedAppointments);
-	setrowNumber(0);
+    const updatedAppointments = appointments.concat(rowData);
+    setAppointments(updatedAppointments);
+    setrowNumber(0);
   }
 
   const handleSearch = () => {
