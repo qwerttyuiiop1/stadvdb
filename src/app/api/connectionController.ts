@@ -126,7 +126,6 @@ export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined)
 		try {
 			return await execDB(readIP, isolation, func)
 		} catch (e: any) {
-			console.log("!!!", e.code, e)
 			if (e.code !== "ECONNREFUSED")
 				throw e;
 			await refreshReadIp();
@@ -139,6 +138,7 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		try {
 			return await execDB(masterIP, isolation, func);
 		} catch (e: any) {
+			console.log("!!!", e.code, e)
 			if (e.code !== "ECONNREFUSED" || e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
 			await refreshMasterIp();
