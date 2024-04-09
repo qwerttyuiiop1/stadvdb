@@ -12,27 +12,19 @@ export interface Appointment {
     starttime: string | null;
     endtime: string | null;
     type: string;
-    virtual: boolean | null;
+    virtual: number | null;
     apptid: string;
   }
 
 
-const TableRow: React.FC<{ data: Appointment, rowNumber: number }> = ({ data, rowNumber }) => {
+const TableRow: React.FC<{
+  data: Appointment, rowNumber: number,
+  onEditClick: (appt: Appointment) => void,
+  onDeleteClick: (appt: Appointment) => void
+}> = ({ data, rowNumber, onEditClick, onDeleteClick }) => {
 
   const handleEdit = async () => {
-    try {
-      const response: Response = await fetch('/api/appointments', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-  
-      // rest of your code...
-    } catch (error) {
-      console.error(error);
-    }
+    onEditClick(data);
   }
   
   const handleDelete = async () => {
@@ -44,6 +36,8 @@ const TableRow: React.FC<{ data: Appointment, rowNumber: number }> = ({ data, ro
         },
         body: JSON.stringify({ apptid: data.apptid }),
       });
+
+      // onDeleteClick(data);
   
       // rest of your code...
     } catch (error) {

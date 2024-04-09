@@ -1,11 +1,15 @@
 import React from 'react';
 import TableRow, { Appointment }  from '@/components/Table/TableRow';
 
-const TableBody: React.FC<{ data: Appointment[] }> = ({ data }) => {
+const TableBody: React.FC<{
+  data: Appointment[],
+  onEditClick: (appt: Appointment) => void,
+  onDeleteClick: (appt: Appointment) => void
+}> = ({ data, onEditClick, onDeleteClick }) => {
     return(
       <tbody>
         {data.map((row, index) => (
-          <TableRow key={index} data={row} rowNumber={index + 1}/>
+          <TableRow key={index} data={row} rowNumber={index + 1} onEditClick={onEditClick} onDeleteClick={onDeleteClick} />
         )
         )}
       </tbody>
