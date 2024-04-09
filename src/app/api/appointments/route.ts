@@ -42,7 +42,7 @@ export const POST = async (req: NextRequest) => {
 				break;
 			}
 		}
-		return await conn.query(
+		await conn.query(
 			"INSERT INTO appointments (pxid, clinicid, doctorid, status, queuedate, starttime, endtime, type, `virtual`, apptid, timequeued) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 			[
 			  pxid,
@@ -57,9 +57,10 @@ export const POST = async (req: NextRequest) => {
 			  apptid.join(''),
 			  timequeued
 			]
-		  );		  
-
-	  });
+		  );
+		const res: any = await conn.query("SELECT * FROM appointments WHERE apptid = ?", [apptid.join('')]);	  
+		return res[0][0];
+	  }, "REPEATABLE READ");
       return NextResponse.json({ appointment: res });
     } catch (e) {
       console.error(e);
