@@ -4,7 +4,7 @@ import FormLabel from './FormLabel';
 import FormInput from './FormInput';
 import { Appointment }  from '@/components/Table/TableRow';
 
-const FormBody: React.FC<{ formData: Appointment }> = ({ formData }) => {
+const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointment ) => void }> = ({ formData, setFormData }) => {
     return (
         <>
             <FormLabel label="pxid" /><br/>
@@ -17,7 +17,11 @@ const FormBody: React.FC<{ formData: Appointment }> = ({ formData }) => {
             <FormInput id="doctorid" defaultValue={formData.doctorid} />
             <br/><br/>
             <FormLabel label="status" /><br/>
-            <select id="type" className={styles.select} defaultValue={formData.status} required>
+            <select
+                id="type" className={styles.select} value={formData.status}
+                onChange={e => setFormData({ ...formData, status: e.target.value })}
+                required
+            >
                 <option value="Complete">Complete</option>
                 <option value="Serving">Serving</option>
                 <option value="Queued">Queued</option>
@@ -36,13 +40,19 @@ const FormBody: React.FC<{ formData: Appointment }> = ({ formData }) => {
             <FormInput id="endtime" defaultValue={formData.endtime || ''} />
             <br/><br/>
             <FormLabel label="type" /><br/>
-            <select id="type" className={styles.select} defaultValue={formData.type} required>
+            <select
+                id="type" className={styles.select} value={formData.type}
+                onChange={e => setFormData({ ...formData, type: e.target.value })}
+                required
+            >
                 <option value="Consultation">Consultation</option>
                 <option value="Inpatient">Inpatient</option>
             </select>
             <br/><br/>
             <FormLabel label="virtual" /><br/>
-            <select id="virtual" className={styles.select} defaultValue={formData.virtual || ''}>
+            <select id="virtual" className={styles.select} value={formData.virtual == null ? '' : formData.virtual}
+                onChange={e => setFormData({ ...formData, virtual: Number(e.target.value) })}
+            >
                 <option value=""></option>
                 <option value="0">0</option>
                 <option value="1">1</option>

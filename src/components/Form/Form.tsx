@@ -34,7 +34,7 @@ const Form: React.FC<{ data: Appointment | null, rowNumber: number }> = ({ data,
       <form className={formMode === 'add' ? `${styles.form_container} ${styles.form_container_add}` : `${styles.form_container} ${styles.form_container_edit}`}>
         <h2>{formMode === 'add' ? 'Add Row' : `Edit - Row #${rowNumber}`}</h2>
         <br/><hr/><br/>
-        <FormBody formData={formData} />
+        <FormBody formData={formData} setFormData={setFormData} />
         <button type="submit" className={formMode === 'add' ? styles.addButton : styles.saveButton}>{formMode === 'add' ? 'Add' : 'Save'}</button>
         <button
           type="reset" className={styles.discardButton}
