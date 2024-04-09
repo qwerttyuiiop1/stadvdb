@@ -94,7 +94,8 @@ async function execDB<T>(host: string, isolation: IsolationLevel, func: F<T>) {
 	console.error('!!!!!')
 	return await func(conn);
   } catch (e: any) {
-	console.error('!!!!',e.code, e);
+	console.error('!!!!');
+	console.error(e.code, e);
 	await conn.rollback();
 	throw e;
   } finally {
