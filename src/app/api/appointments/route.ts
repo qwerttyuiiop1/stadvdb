@@ -11,7 +11,7 @@ export const GET = async (req: NextRequest) => {
 	const order = " ORDER BY apptid DESC" +
 		(limit ? ` LIMIT ${limit} OFFSET ${(page - 1) * limit}` : "");
     const res = await read(async (conn) => {
-      conn.sql("SELECT * FROM appointments" + order)
+      return conn.sql("SELECT * FROM appointments" + order)
     }, "READ COMMITTED");
     return NextResponse.json({ appointments: res });
   } catch (e) {
