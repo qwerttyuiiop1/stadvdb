@@ -3,12 +3,15 @@ import styles from '@/components/Form/Form.module.css';
 import FormBody from './FormBody';
 import { Appointment }  from '@/components/Table/TableRow';
 
-const Form: React.FC<{ 
-	data: Appointment | null, 
-	rowNumber: number,
-	onUpdate: (data: Appointment) => void,
+const Form: React.FC<{
+  data: Appointment | null,
+  rowNumber: number,
+  mode: 'add' | 'edit' | 'search',
+  setFormMode: (mode: 'add' | 'edit' | 'search') => void,
+  onUpdate: (data: Appointment) => void,
 	onAdd: (data: Appointment) => void
-}> = ({ data, rowNumber, onUpdate, onAdd }) => {
+}> = ({ data, rowNumber, mode, setFormMode, onUpdate, onAdd }) => {
+  
     const initialData: Appointment = useMemo(() => ({
         pxid: '',
         clinicid: '',
@@ -23,7 +26,6 @@ const Form: React.FC<{
         apptid: ''
     }), []);
 
-    const [formMode, setFormMode] = useState<'add' | 'edit'>('add');
     const [formData, setFormData] = useState<Appointment>(initialData);
 
     useEffect(() => {
@@ -40,7 +42,7 @@ const Form: React.FC<{
       event.preventDefault();
       // Edit mode
 	  console.log('submit', formData);
-      if (formMode === 'edit') {
+      if (mode === 'edit') {
         try {
           const response: Response = await fetch(`/api/appointments/${data?.apptid}`, {
             method: 'PUT',
@@ -57,7 +59,7 @@ const Form: React.FC<{
           console.error(error);
         }
       // Add mode
-      } else {
+      } else if (mode === 'add') {
         const response: Response = await fetch('/api/appointments', {
 		  method: 'POST',
 		  headers: {
@@ -73,11 +75,11 @@ const Form: React.FC<{
     }
 
     return(
-      <form onSubmit={handleSubmit} className={formMode === 'add' ? `${styles.form_container} ${styles.form_container_add}` : `${styles.form_container} ${styles.form_container_edit}`}>
-        <h2>{formMode === 'add' ? 'Add Row' : `Edit - Row #${rowNumber}`}</h2>
+      <form onSubmit={handleSubmit} className={mode === 'add' ? `${styles.form_container} ${styles.form_container_add}` : mode === 'edit' ? `${styles.form_container} ${styles.form_container_edit}` : `${styles.form_container} ${styles.form_container_search}`}>
+        <h2>{mode === 'add' ? 'Add Row' : mode === 'edit' ? `Edit - Row #${rowNumber}` : 'Search'}</h2>
         <br/><hr/><br/>
         <FormBody formData={formData} setFormData={setFormData} />
-        <button type="submit" className={formMode === 'add' ? styles.addButton : styles.saveButton}>{formMode === 'add' ? 'Add' : 'Save'}</button>
+        <button type="submit" className={mode === 'add' ? styles.addButton : mode === 'edit' ? styles.saveButton : styles.searchButton}>{mode === 'add' ? 'Add' : 'Search'}</button>
         <button
           type="reset" className={styles.discardButton}
           onClick={() => {

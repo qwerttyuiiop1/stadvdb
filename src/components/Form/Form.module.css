@@ -17,6 +17,10 @@
     border: 2px solid #53db31;
 }
 
+.form_container_search {
+    border: 2px solid #7b7b7b;
+}
+
 .input, .select {
     height: 30px;
     width: 100%;
@@ -52,6 +56,18 @@
     margin-top: 1rem;
 }
 
+.searchButton {
+    height: 2.2rem;
+    width: 4.5rem;
+    color: white;
+    background-color: #7b7b7b;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 4px;
+    border: none;
+    margin-top: 1rem;
+}
+
 .discardButton {
     height: 2.2rem;
     width: 4.5rem;
@@ -65,7 +81,7 @@
     margin-left: 0.5rem;
 }
 
-.addButton:hover, .discardButton:hover, .saveButton:hover {
+.addButton:hover, .discardButton:hover, .saveButton:hover, .searchButton:hover {
     cursor: pointer;
     opacity: 0.8;
 }

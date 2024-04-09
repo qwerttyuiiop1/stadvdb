@@ -20,7 +20,7 @@
 
 .searchButton {
   height: 3rem;
-  width: 6rem;
+  width: 7.5rem;
   color: #7b7b7b;
   border: 4px solid ;
   border-radius: 20px;
@@ -35,5 +35,4 @@
 .searchButton:hover {
   cursor: pointer;
   opacity: 0.8;
-  
 }

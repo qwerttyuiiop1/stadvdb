@@ -7,12 +7,12 @@ export interface Appointment {
     pxid: string;
     clinicid: string;
     doctorid: string;
-    status: string;
+    status: string | null;
     timequeued: string | null;
     queuedate: string | null;
     starttime: string | null;
     endtime: string | null;
-    type: string;
+    type: string | null;
     virtual: number | null;
     apptid: string;
   }

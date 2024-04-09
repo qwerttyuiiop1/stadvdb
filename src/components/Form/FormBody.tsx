@@ -18,10 +18,10 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
             <br/><br/>
             <FormLabel label="status" /><br/>
             <select
-                id="type" className={styles.select} value={formData.status}
+                id="type" className={styles.select} value={formData.status || ''}
                 onChange={e => setFormData({ ...formData, status: e.target.value })}
-                required
             >
+                <option value=""></option>
                 <option value="Complete">Complete</option>
                 <option value="Serving">Serving</option>
                 <option value="Queued">Queued</option>
@@ -44,10 +44,10 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
             <br/><br/>
             <FormLabel label="type" /><br/>
             <select
-                id="type" className={styles.select} value={formData.type}
+                id="type" className={styles.select} value={formData.type || ''}
                 onChange={e => setFormData({ ...formData, type: e.target.value })}
-                required
             >
+                <option value=""></option>
                 <option value="Consultation">Consultation</option>
                 <option value="Inpatient">Inpatient</option>
             </select>

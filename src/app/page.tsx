@@ -9,6 +9,7 @@ import Form from '@/components/Form/Form'
 export default function Home() {
   const [rowNumber, setrowNumber] = useState<number>(-1);
   const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [formMode, setFormMode] = useState<'add' | 'edit' | 'search'>('add');
   const [page, setPage] = useState<number>(1);
   
   React.useEffect(() => {
@@ -17,6 +18,7 @@ export default function Home() {
 	  .then(data => setAppointments(data.appointments));
   }, [page]);
 
+  
   const handleEditClick = async ( rowNumber: number ) => {
     setrowNumber(rowNumber);
   }
@@ -36,17 +38,20 @@ export default function Home() {
 	setrowNumber(-1);
   }
 
+  const handleSearch = () => {
+    setFormMode('search');
+  }
 
 
   return (
     <main className={styles.main}>
       <div className={styles.top_container}>
         <h1>Appointments Table</h1>
-        <button className={styles.searchButton}>Search</button>
+        <button className={styles.searchButton} onClick={handleSearch}>🔍 Search</button>
       </div>
       <div className={styles.container}>
         <Table data={appointments} onEditClick={handleEditClick} onDelete={handleDelete} />
-        <Form data={rowNumber === -1 ? null :appointments[rowNumber]} rowNumber={rowNumber} onUpdate={handleUpdate} onAdd={handleAdd}/>
+        <Form data={rowNumber === -1 ? null :appointments[rowNumber]} mode={formMode} setFormMode={setFormMode} rowNumber={rowNumber} onUpdate={handleUpdate} onAdd={handleAdd} />
       </div>
     </main>
   );
