@@ -137,9 +137,9 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined, server: 'master'|'self' = 'master'): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			return await execAdmin(masterIP, isolation, func);
+			return await execAdmin(server === 'master' ? masterIP : SELF_IP, isolation, func);
 		} catch (e: any) {
-			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT" || server === 'self')
 				throw e;
 			await refreshMasterIp();
 		}
@@ -149,10 +149,9 @@ export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 
 export type ScopedConnection = Connection & {endScope: ()=>Awaitable<void>}
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => any ? P : never;
-interface ScopeRet <F extends typeof read> {
-	(...params: OmitFirstArg<F>): Promise<ScopedConnection>
-}
-export const scope = <F extends typeof read> (queryFunc: F): ScopeRet<F> => {
+type Scope = <F extends typeof read> (queryFunc: F) => 
+	(...params: OmitFirstArg<F>) => Promise<ScopedConnection>;
+export const scope: Scope = (queryFunc) => {
 	return (...params) => new Promise((resolve) => {
 		queryFunc(async conn => {
 			await new Promise<void>(endScope => {

@@ -4,7 +4,7 @@ const adminScope = scope(admin);
 let conn: ScopedConnection | null = null;
 export const lock = async () => {
 	if (conn) return;
-	conn = await adminScope();
+	conn = await adminScope(undefined, 'self');
 	conn.query("FLUSH TABLES WITH READ LOCK;");
 }
 export const unlock = async () => {
