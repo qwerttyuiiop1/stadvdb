@@ -39,6 +39,7 @@ const Form: React.FC<{
     const handleSubmit = async (event: React.FormEvent) => {
       event.preventDefault();
       // Edit mode
+	  console.log('submit', formData);
       if (formMode === 'edit') {
         try {
           const response: Response = await fetch(`/api/appointments/${data?.apptid}`, {
