@@ -37,7 +37,7 @@ export const DELETE = async (req: NextRequest, params: Params) => {
   try {
 	const id = params.params.id;
 	await write(async conn => {
-		conn.query("DELETE FROM foo WHERE id = ?", [id])
+		return conn.query("DELETE FROM foo WHERE id = ?", [id])
 	}, "READ COMMITTED");
 	return NextResponse.json({ success: true });
   } catch (e) {
