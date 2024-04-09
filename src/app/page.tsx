@@ -96,9 +96,11 @@ const appointments: Appointment[] = [
 
 export default function Home() {
   const [rowData, setRowData] = useState<Appointment | null>(null);
+  const [rowNumber, setrowNumber] = useState<number>(0);
   
-  const handleEdit = async ( data: Appointment ) => {
+  const handleEdit = async ( data: Appointment, rowNumber: number ) => {
     setRowData(data);
+    setrowNumber(rowNumber);
 
     // try {
     //   const response: Response = await fetch('/api/appointments', {
@@ -140,7 +142,7 @@ export default function Home() {
       <h1>Appointments Table</h1>
       <div className={styles.container}>
         <Table data={appointments} onEditClick={handleEdit} onDeleteClick={handleDelete} />
-        <Form data={rowData}/>
+        <Form data={rowData} rowNumber={rowNumber}/>
       </div>
     </main>
   );

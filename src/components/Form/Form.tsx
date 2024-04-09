@@ -3,7 +3,7 @@ import styles from '@/components/Form/Form.module.css';
 import FormBody from './FormBody';
 import { Appointment }  from '@/components/Table/TableRow';
 
-const Form: React.FC<{ data: Appointment | null }> = ({ data }) => {
+const Form: React.FC<{ data: Appointment | null, rowNumber: number }> = ({ data, rowNumber }) => {
     const initialData: Appointment = {
         pxid: '',
         clinicid: '',
@@ -32,7 +32,7 @@ const Form: React.FC<{ data: Appointment | null }> = ({ data }) => {
 
     return(
       <form className={formMode === 'add' ? `${styles.form_container} ${styles.form_container_add}` : `${styles.form_container} ${styles.form_container_edit}`}>
-        <h2>{formMode === 'add' ? 'Add Row' : 'Edit Row'}</h2>
+        <h2>{formMode === 'add' ? 'Add Row' : `Edit - Row #${rowNumber}`}</h2>
         <br/><hr/><br/>
         <FormBody formData={formData} />
         <button type="submit" className={formMode === 'add' ? styles.addButton : styles.saveButton}>{formMode === 'add' ? 'Add' : 'Save'}</button>

@@ -19,12 +19,12 @@ export interface Appointment {
 
 const TableRow: React.FC<{
   data: Appointment, rowNumber: number,
-  onEditClick: (appt: Appointment) => void,
+  onEditClick: (appt: Appointment, rowNumber: number) => void,
   onDeleteClick: (appt: Appointment) => void
 }> = ({ data, rowNumber, onEditClick, onDeleteClick }) => {
 
   const handleEdit = async () => {
-    onEditClick(data);
+    onEditClick(data, rowNumber);
   }
   
   const handleDelete = async () => {
