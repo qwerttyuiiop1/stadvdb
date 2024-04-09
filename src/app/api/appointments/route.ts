@@ -5,9 +5,9 @@ import { Appointment } from "@/components/Table/TableRow";
 
 export const GET = async () => {
   try {
-    const res = await read(async (conn) =>
+    const res = await read(async (conn) => {
       conn.sql("SELECT * FROM appointments")
-    );
+    }, "READ COMMITTED");
     return NextResponse.json({ appointments: res });
   } catch (e) {
     console.error(e);
@@ -34,11 +34,12 @@ export const POST = async (req: NextRequest) => {
 		const max_id = await conn.sql("SELECT MAX(apptid) as max_id FROM appointments");
 		// add 1 to 32 character hex string max_id
 		let apptid = max_id[0].max_id.split('');
+		const hex = '0123456789ABCDEF';
 		for (let i = apptid.length - 1; i --> 0;) {
 			if (apptid[i] === 'F') {
 				apptid[i] = '0';
 			} else {
-				apptid[i] = String.fromCharCode(apptid[i].charCodeAt(0) + 1);
+				apptid[i] = hex[hex.indexOf(apptid[i]) + 1];
 				break;
 			}
 		}
@@ -71,11 +72,12 @@ export const POST = async (req: NextRequest) => {
   export const PUT = async (req: NextRequest) => {
       try {
         const body = await req.json();
-        const { apptid, pxid, clinicid, doctorid, status, queuedate, starttime, endtime, type, virtual } = body as Appointment;
-        const res = await write(async conn =>
-          conn.query("UPDATE appointments SET pxid = ?, clinicid = ?, doctorid = ?, status = ?, queuedate = ?, starttime = ?, endtime = ?, type = ?, virtual = ? WHERE apptid = ?", [pxid, clinicid, doctorid, status, queuedate, starttime, endtime, type, virtual, apptid])
-        );
-        return NextResponse.json({ appointment: res });
+        const { apptid, pxid, clinicid, doctorid, status, timequeued, queuedate, starttime, endtime, type, virtual } = body as Appointment;
+        const res = await write(async conn => {
+          await conn.query("UPDATE appointments SET pxid = ?, clinicid = ?, doctorid = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?, type = ?, virtual = ? WHERE apptid = ?", [pxid, clinicid, doctorid, status, timequeued, queuedate, starttime, endtime, type, virtual, apptid])
+		  return conn.query("SELECT * FROM appointments WHERE apptid = ?", [apptid]) as any;
+	    });
+        return NextResponse.json({ appointment: res[0][0] });
       } catch (e) {
         console.error(e);
         return NextResponse.json(e, { status: 500 });
