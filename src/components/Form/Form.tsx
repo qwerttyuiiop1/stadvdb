@@ -36,13 +36,16 @@ const Form: React.FC<{
         setFormMode('add');
         setFormData({...initialData, apptid: ''})
       }
-    }, [data, initialData]);
+    }, [data, initialData, setFormMode]);
 
     const handleSubmit = async (event: React.FormEvent) => {
       event.preventDefault();
-      const formData = new FormData(event.target as HTMLFormElement);
-	  const data = Object.fromEntries(formData.entries()) as unknown as Appointment;
-
+	  const data = {} as Appointment;
+	  for (const key in initialData) {
+		const value = (document.getElementById(key)! as HTMLInputElement).value;
+		(data as any)[key] = value;
+	  }
+	  data.apptid = formData.apptid;
 	  console.log('submit', data);
       if (mode === 'edit') {
         try {
