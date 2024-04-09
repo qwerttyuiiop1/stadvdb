@@ -41,21 +41,21 @@ export const POST = async (req: NextRequest) => {
 				break;
 			}
 		}
-        return await conn.query(
-          "INSERT INTO appointments (pxid, clinicid, doctorid, status, queuedate, starttime, endtime, type, virtual, apptid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-          [
-            pxid,
-            clinicid,
-            doctorid,
-            status,
-            queuedate,
-            starttime,
-            endtime,
-            type,
-            virtual,
-			apptid.join(''),
-          ]
-        );
+		return await conn.query(
+			"INSERT INTO appointments (pxid, clinicid, doctorid, status, queuedate, starttime, endtime, type, `virtual`, apptid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			[
+			  pxid,
+			  clinicid,
+			  doctorid,
+			  status,
+			  queuedate,
+			  starttime,
+			  endtime,
+			  type,
+			  virtual,
+			  apptid.join(''), // Assuming apptid is an array that needs to be joined into a string
+			]
+		  );		  
 
 	  });
       return NextResponse.json({ appointment: res });
