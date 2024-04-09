@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import styles from "./page.module.css";
 import Table from "@/components/Table/Table";
 import { Appointment }  from '@/components/Table/TableRow';
@@ -10,6 +10,22 @@ export default function Home() {
   const [rowNumber, setrowNumber] = useState<number>(0);
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [formMode, setFormMode] = useState<'add' | 'edit' | 'search'>('add');
+
+  const initialData: Appointment = useMemo(() => ({
+    pxid: '',
+    clinicid: '',
+    doctorid: '',
+    status: '',
+    timequeued: null,
+    queuedate: null,
+    starttime: null,
+    endtime: null,
+    type: '',
+    virtual: null,
+    apptid: ''
+  }), []);
+
+  const [formData, setFormData] = useState<Appointment>(initialData);
   const [page, setPage] = useState<number>(1);
   
   React.useEffect(() => {
@@ -40,6 +56,7 @@ export default function Home() {
 
   const handleSearch = () => {
     setFormMode('search');
+    setFormData(initialData);
   }
 
 
@@ -51,7 +68,7 @@ export default function Home() {
       </div>
       <div className={styles.container}>
         <Table data={appointments} onEditClick={handleEditClick} onDelete={handleDelete} />
-        <Form data={rowNumber ? appointments[rowNumber-1] : null} mode={formMode} setFormMode={setFormMode} rowNumber={rowNumber} onUpdate={handleUpdate} onAdd={handleAdd} />
+        <Form data={rowNumber ? appointments[rowNumber-1] : null} mode={formMode} setFormMode={setFormMode} setFormData={setFormData} formData={formData} initialData={initialData} rowNumber={rowNumber} onUpdate={handleUpdate} onAdd={handleAdd} />
       </div>
     </main>
   );

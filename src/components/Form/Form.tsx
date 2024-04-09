@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '@/components/Form/Form.module.css';
 import FormBody from './FormBody';
 import { Appointment }  from '@/components/Table/TableRow';
@@ -8,26 +8,13 @@ const Form: React.FC<{
   rowNumber: number,
   mode: 'add' | 'edit' | 'search',
   setFormMode: (mode: 'add' | 'edit' | 'search') => void,
+  setFormData: (data: Appointment) => void,
+  formData: Appointment,
+  initialData: Appointment,
   onUpdate: (data: Appointment) => void,
 	onAdd: (data: Appointment) => void
-}> = ({ data, rowNumber, mode, setFormMode, onUpdate, onAdd }) => {
+}> = ({ data, rowNumber, mode, setFormMode, setFormData, formData, initialData, onUpdate, onAdd }) => {
   
-    const initialData: Appointment = useMemo(() => ({
-        pxid: '',
-        clinicid: '',
-        doctorid: '',
-        status: '',
-        timequeued: null,
-        queuedate: null,
-        starttime: null,
-        endtime: null,
-        type: '',
-        virtual: null,
-        apptid: ''
-    }), []);
-
-    const [formData, setFormData] = useState<Appointment>(initialData);
-
     useEffect(() => {
       if (data) {
         setFormMode('edit');
@@ -41,7 +28,7 @@ const Form: React.FC<{
     const handleSubmit = async (event: React.FormEvent) => {
       event.preventDefault();
 
-	  const data = {} as Appointment;
+	    const data = {} as Appointment;
       for (const key in initialData) {
         const value = (document.getElementById(key)! as HTMLInputElement).value;
         (data as any)[key] = value;
