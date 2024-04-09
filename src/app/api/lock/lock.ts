@@ -9,7 +9,7 @@ export const lock = async () => {
 	console.log(Boolean(conn));
 }
 export const unlock = async () => {
-	console.log(Boolean)
+	console.log(Boolean(conn))
 	if (!conn) return;
 	console.log("unlocking");
 	await conn.query("UNLOCK TABLES;");
