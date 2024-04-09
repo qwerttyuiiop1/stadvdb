@@ -138,9 +138,12 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		try {
 			return await execDB(masterIP, isolation, func);
 		} catch (e: any) {
+			console.log(e);
 			if (e.code !== "ECONNREFUSED" || e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
+			console.log("Refreshing master ip: ", masterIP);
 			await refreshMasterIp();
+			console.log("Master ip refreshed: ", masterIP);
 		}
 	}
 	throw new Error("All servers are down");
