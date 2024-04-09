@@ -10,7 +10,8 @@ export const GET = async () => {
 	  database: process.env.DATABASE
 	});
 	// await connection.query('DELETE FROM foo WHERE id = 12');
-	await connection.query('UPDATE foo SET bar = "baz" WHERE id = 12');
+	// await connection.query('UPDATE foo SET bar = "baz" WHERE id = 12');
+	// await connection.query('INSERT INTO foo (bar) VALUES ("baz")');
 	await connection.end();
 	return NextResponse.json({ desc: 'Delete successful' });
   } catch (e) {
@@ -18,3 +19,4 @@ export const GET = async () => {
 	return NextResponse.json(e, { status: 500 });
   }
 }
+export const dynamic = 'force-dynamic';
