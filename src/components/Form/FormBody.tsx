@@ -8,16 +8,16 @@ const FormBody: React.FC<{ formData: Appointment }> = ({ formData }) => {
     return (
         <>
             <FormLabel label="pxid" /><br/>
-            <FormInput id="pxid" value={formData.pxid} />
+            <FormInput id="pxid" defaultValue={formData.pxid} />
             <br/><br/>
             <FormLabel label="clinicid" /><br/>
-            <FormInput id="clinicid" value={formData.clinicid} />
+            <FormInput id="clinicid" defaultValue={formData.clinicid} />
             <br/><br/>
             <FormLabel label="doctorid" /><br/>
-            <FormInput id="doctorid" value={formData.doctorid} />
+            <FormInput id="doctorid" defaultValue={formData.doctorid} />
             <br/><br/>
             <FormLabel label="status" /><br/>
-            <select id="type" className={styles.select} value={formData.status} required>
+            <select id="type" className={styles.select} defaultValue={formData.status} required>
                 <option value="Complete">Complete</option>
                 <option value="Serving">Serving</option>
                 <option value="Queued">Queued</option>
@@ -27,29 +27,29 @@ const FormBody: React.FC<{ formData: Appointment }> = ({ formData }) => {
             </select>
             <br/><br/>
             <FormLabel label="queuedate" /><br/>
-            <FormInput id="queuedate" value={formData.queuedate || ''} />
+            <FormInput id="queuedate" defaultValue={formData.queuedate || ''} />
             <br/><br/>
             <FormLabel label="starttime" /><br/>
-            <FormInput id="starttime" value={formData.starttime || ''} />
+            <FormInput id="starttime" defaultValue={formData.starttime || ''} />
             <br/><br/>
             <FormLabel label="endtime" /><br/>
-            <FormInput id="endtime" value={formData.endtime || ''} />
+            <FormInput id="endtime" defaultValue={formData.endtime || ''} />
             <br/><br/>
             <FormLabel label="type" /><br/>
-            <select id="type" className={styles.select} value={formData.type} required>
+            <select id="type" className={styles.select} defaultValue={formData.type} required>
                 <option value="Consultation">Consultation</option>
                 <option value="Inpatient">Inpatient</option>
             </select>
             <br/><br/>
             <FormLabel label="virtual" /><br/>
-            <select id="virtual" className={styles.select} value={formData.virtual || ''}>
+            <select id="virtual" className={styles.select} defaultValue={formData.virtual || ''}>
                 <option value=""></option>
                 <option value="0">0</option>
                 <option value="1">1</option>
             </select>
             <br/><br/>
             <FormLabel label="apptid" /><br/>
-            <FormInput id="apptid" value={formData.apptid} />
+            <FormInput id="apptid" defaultValue={formData.apptid} />
         </>
     );
 }
