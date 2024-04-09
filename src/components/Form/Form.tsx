@@ -4,7 +4,7 @@ import FormBody from './FormBody';
 import { Appointment }  from '@/components/Table/TableRow';
 
 const Form: React.FC<{ 
-	data: Appointment | undefined, 
+	data: Appointment | null, 
 	rowNumber: number,
 	onUpdate: (data: Appointment) => void,
 	onAdd: (data: Appointment) => void
