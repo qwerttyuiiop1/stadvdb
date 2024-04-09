@@ -124,19 +124,12 @@ async function execAdmin<T>(host: string, isolation: IsolationLevel, func: F<T>)
   }) as Connection;
   return executeTransaction(conn, isolation, func);
 }
-const trySetReadIp = debounce(async () => {
-	try {
-		const ips = await getServers();
-		if (ips.includes(SELF_IP!))
-			readIP = SELF_IP!;
-	} catch (e) {}
-})
 export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined) => {
 	// uncommitted writes are not possible in read-only nodes
 	if (isolation === "READ UNCOMMITTED")
 		return write(func, isolation);
 	if (readIP !== SELF_IP)
-		trySetReadIp();
+		refreshReadIp();
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
 			return await execDB(readIP, isolation, func)
