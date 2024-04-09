@@ -19,13 +19,12 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
             <FormLabel label="status" /><br/>
             <select
                 id="status" className={styles.select} defaultValue={formData.status || ''}
-                required
             >
                 <option value=""></option>
                 <option value="Complete">Complete</option>
                 <option value="Serving">Serving</option>
                 <option value="Queued">Queued</option>
-                <option value="No Show">No Show</option>
+                <option value="NoShow">NoShow</option>
                 <option value="Skip">Skip</option>
                 <option value="Cancel">Cancel</option>
             </select>
@@ -45,7 +44,6 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
             <FormLabel label="type" /><br/>
             <select
                 id="type" className={styles.select} defaultValue={formData.type || ''}
-                required
             >
                 <option value=""></option>
                 <option value="Consultation">Consultation</option>
