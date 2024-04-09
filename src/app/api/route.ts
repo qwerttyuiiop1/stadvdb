@@ -9,7 +9,8 @@ export const GET = async () => {
 	  password: process.env.DB_PASSWORD,
 	  database: process.env.DATABASE
 	});
-	await connection.query('DELETE FROM foo WHERE id = 12');
+	// await connection.query('DELETE FROM foo WHERE id = 12');
+	await connection.query('UPDATE foo SET bar = "baz" WHERE id = 12');
 	await connection.end();
 	return NextResponse.json({ desc: 'Delete successful' });
   } catch (e) {
