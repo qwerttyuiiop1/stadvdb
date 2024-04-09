@@ -8,7 +8,7 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
     return (
         <>
             <FormLabel label="pxid" /><br/>
-            <FormInput id="pxid" defaultValue={formData.pxid} disabled />
+            <FormInput id="pxid" value={formData.pxid} disabled />
             <br/><br/>
             <FormLabel label="clinicid" /><br/>
             <FormInput id="clinicid" defaultValue={formData.clinicid} />
