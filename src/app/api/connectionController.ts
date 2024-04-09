@@ -91,6 +91,7 @@ async function execDB<T>(host: string, isolation: IsolationLevel, func: F<T>) {
   }) as Connection;
   try {
 	await setUpTransaction(conn, isolation);
+	console.error('!!!!!')
 	return await func(conn);
   } catch (e: any) {
 	console.error('!!!!',e.code, e);
