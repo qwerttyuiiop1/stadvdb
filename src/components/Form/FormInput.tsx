@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { InputHTMLAttributes } from 'react';
 import styles from './Form.module.css';
 
-const FormInput: React.FC<{ id: string, defaultValue: string }> = ({ id, defaultValue }) => {
+type Input = InputHTMLAttributes<HTMLInputElement>;
+const FormInput: React.FC<Input & {id: string}> = (props) => {
     return (
-        <input type="text" id={id} className={styles.input} defaultValue={defaultValue}></input>
+        <input type="text" className={styles.input} name={props.id} {...props}></input>
     );
 }
 

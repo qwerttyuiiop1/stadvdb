@@ -40,8 +40,10 @@ const Form: React.FC<{
 
     const handleSubmit = async (event: React.FormEvent) => {
       event.preventDefault();
-      // Edit mode
-	  console.log('submit', formData);
+      const formData = new FormData(event.target as HTMLFormElement);
+	  const data = Object.fromEntries(formData.entries()) as unknown as Appointment;
+
+	  console.log('submit', data);
       if (mode === 'edit') {
         try {
           const response: Response = await fetch(`/api/appointments/${data?.apptid}`, {
@@ -49,7 +51,7 @@ const Form: React.FC<{
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(formData),
+            body: JSON.stringify(data),
           });
 		  const json = await response.json();
 		  if (!response.ok)

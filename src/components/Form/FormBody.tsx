@@ -8,7 +8,7 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
     return (
         <>
             <FormLabel label="pxid" /><br/>
-            <FormInput id="pxid" defaultValue={formData.pxid} />
+            <FormInput id="pxid" defaultValue={formData.pxid} disabled />
             <br/><br/>
             <FormLabel label="clinicid" /><br/>
             <FormInput id="clinicid" defaultValue={formData.clinicid} />
@@ -18,14 +18,14 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
             <br/><br/>
             <FormLabel label="status" /><br/>
             <select
-                id="type" className={styles.select} value={formData.status || ''}
-                onChange={e => setFormData({ ...formData, status: e.target.value })}
+                id="type" className={styles.select} defaultValue={formData.status || ''}
+                required
             >
                 <option value=""></option>
                 <option value="Complete">Complete</option>
                 <option value="Serving">Serving</option>
                 <option value="Queued">Queued</option>
-                <option value="NoShow">No Show</option>
+                <option value="No Show">No Show</option>
                 <option value="Skip">Skip</option>
                 <option value="Cancel">Cancel</option>
             </select>
@@ -44,8 +44,8 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
             <br/><br/>
             <FormLabel label="type" /><br/>
             <select
-                id="type" className={styles.select} value={formData.type || ''}
-                onChange={e => setFormData({ ...formData, type: e.target.value })}
+                id="type" className={styles.select} defaultValue={formData.type}
+                required
             >
                 <option value=""></option>
                 <option value="Consultation">Consultation</option>
@@ -53,9 +53,7 @@ const FormBody: React.FC<{ formData: Appointment, setFormData: (data: Appointmen
             </select>
             <br/><br/>
             <FormLabel label="virtual" /><br/>
-            <select id="virtual" className={styles.select} value={formData.virtual == null ? '' : formData.virtual}
-                onChange={e => setFormData({ ...formData, virtual: Number(e.target.value) })}
-            >
+            <select id="virtual" className={styles.select} value={formData.virtual == null ? '' : formData.virtual}>
                 <option value=""></option>
                 <option value="0">0</option>
                 <option value="1">1</option>
