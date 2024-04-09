@@ -23,7 +23,7 @@ export const PUT = async (req: NextRequest, { params: {apptid} }: Params) => {
 	  const body = await req.json();
 	  const { pxid, clinicid, doctorid, status, timequeued, queuedate, starttime, endtime, type, virtual } = body as Appointment;
 	  const res = await write(async conn => {
-		await conn.query("UPDATE appointments SET pxid = ?, clinicid = ?, doctorid = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?, type = ?, virtual = ? WHERE apptid = ?", [pxid, clinicid, doctorid, status, timequeued, queuedate, starttime, endtime, type, virtual, apptid])
+		await conn.query("UPDATE appointments SET pxid = ?, clinicid = ?, doctorid = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?, type = ?, `virtual` = ? WHERE apptid = ?", [pxid, clinicid, doctorid, status, timequeued, queuedate, starttime, endtime, type, virtual, apptid])
 		return conn.query("SELECT * FROM appointments WHERE apptid = ?", [apptid]) as any;
 	  }, "REPEATABLE READ");
 	  return NextResponse.json({ appointment: res[0][0] });
