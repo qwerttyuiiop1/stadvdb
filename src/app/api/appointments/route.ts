@@ -3,10 +3,15 @@ import { read, write } from "@connect";
 import { Appointment } from "@/components/Table/TableRow";
 
 
-export const GET = async () => {
+export const GET = async (req: NextRequest) => {
+  const params = req.nextUrl.searchParams;
+  const limit = Number(params.get("limit"));
+  const page = Number(params.get("page")) || 1;
   try {
+	const order = " ORDER BY apptid DESC" +
+		(limit ? ` LIMIT ${limit} OFFSET ${(page - 1) * limit}` : "");
     const res = await read(async (conn) => {
-      conn.sql("SELECT * FROM appointments")
+      conn.sql("SELECT * FROM appointments" + order)
     }, "READ COMMITTED");
     return NextResponse.json({ appointments: res });
   } catch (e) {
