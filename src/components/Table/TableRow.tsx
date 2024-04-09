@@ -49,6 +49,7 @@ const TableRow: React.FC<{
     return(
       <tr className={styles.tr}>
         <td className={styles.rowNumberCell}>{rowNumber}</td>
+        <td>{data.apptid}</td>
         <td>{data.pxid}</td>
         <td>{data.clinicid}</td>
         <td>{data.doctorid}</td>
@@ -58,7 +59,6 @@ const TableRow: React.FC<{
         <td>{data.endtime}</td>
         <td>{data.type}</td>
         <td>{data.virtual}</td>
-        <td>{data.apptid}</td>
         <td className={styles.actionCell}>
           <button className={styles.editButton} onClick={handleEdit}>Edit</button>
           <button className={styles.deleteButton} onClick={handleDelete}>Delete</button>
