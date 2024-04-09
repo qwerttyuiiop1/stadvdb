@@ -26,6 +26,7 @@ export const GET = async () => {
 		  headers: { "Content-Type": "application/json" },
 		  body: JSON.stringify({ bar: master })
 	  });
+	  const during = await fetch(`http://localhost:80/api/test/1`).then(r => r.json());
   
 	  await sleep;
 	  await new Promise(r => setTimeout(r, 1000));
@@ -33,7 +34,8 @@ export const GET = async () => {
 	  return NextResponse.json({
 		  before,
 		  after,
-		  desc
+		  desc,
+		  during
 	  });
 	} catch (e) {
 	  console.error(e);
