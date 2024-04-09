@@ -10,9 +10,6 @@ if (!SELF_IP || !PASSWORD || !USER || !DATABASE || IPS.some(ip => !ip) || !ADMIN
 	throw new Error("Environment variables not provided");
 import mysql from "mysql2/promise";
 type Awaitable<T> = T | PromiseLike<T>;
-let masterIP = SELF_IP;
-let readIP = SELF_IP;
-
 const debounce = <T>(func: () => Awaitable<T>) => {
 	let running: Awaitable<T> | null = null;
 	return async () => {
@@ -24,29 +21,46 @@ const debounce = <T>(func: () => Awaitable<T>) => {
 		}
 	}
 }
-async function ping(ip: string) {
-	try {
-		await execAdmin(ip, undefined, conn => conn.ping());
-		return true;
-	} catch (e) {
-		return false;
-	}
+async function raceQueries<T>(func: (conn: mysql.Connection) => Promise<T>) {
+	const queries = IPS.map(async ip => {
+	  const conn = await mysql.createConnection({
+	    host: ip, user: ADMIN_USER, password: ADMIN_PASSWORD
+	  })
+	  try {
+		return await func(conn);
+	  } catch (e) {
+		await new Promise((_, reject) => setTimeout(reject, 5000));
+	  } finally {
+		conn.end();
+	  }
+	});
+	return await Promise.race(queries) as Promise<T>;
 }
+
+
+
+let masterIP = SELF_IP;
+let readIP = SELF_IP;
+async function _getServers() {
+	const res = await raceQueries(async conn =>
+	  conn.query(`SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_STATE = "ONLINE"`)
+	) as any;
+	return res[0].map((r: any) => r.MEMBER_HOST) as string[];
+}
+const getServers = debounce(_getServers);
 async function _refresMasterIp() {
-	const res = await read(conn => {
-		return conn.sql("SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = \"PRIMARY\"")
-	}, undefined)
-	masterIP = res[0].MEMBER_HOST;
+	const res = await raceQueries(async conn =>
+	  conn.query(`SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = "PRIMARY"`)
+	) as any;
+	masterIP = res[0][0].MEMBER_HOST!;
 }
 const refreshMasterIp = debounce(_refresMasterIp);
 async function _refreshReadIp() {
-	const queries = IPS.map(async ip => await ping(ip) ? ip : null);
-	const res = await Promise.all(queries)
-	const ips = res.filter(ip => ip !== null) as string[];
+	const ips = await getServers();
 	if (ips.includes(SELF_IP!))
 		readIP = SELF_IP!;
 	else
-		readIP = ips[Math.floor(Math.random() * ips.length)];
+		readIP = ips[Math.floor(Math.random() * ips.length)]!;
 }
 const refreshReadIp = debounce(_refreshReadIp);
 
@@ -79,7 +93,12 @@ async function executeTransaction<T>(conn: Connection, isolation: IsolationLevel
 	  await conn.beginTransaction();
 	}
 	conn.sql = ((sql, i) => executeSql(conn, sql, i)) as sqlFunc;
-	return await func(conn);
+	let host = conn.config.host;
+	if (host === "localhost" || !host) host = SELF_IP!;
+	const isActive = getServers().then(ips => {
+		if (!ips.includes(host)) throw {code: "ECONNREFUSED"}
+    });
+	return await Promise.all([func(conn), isActive]);
   } catch (e) {
 	await conn.rollback();
 	throw e;
@@ -102,8 +121,11 @@ async function execAdmin<T>(host: string, isolation: IsolationLevel, func: F<T>)
   return executeTransaction(conn, isolation, func);
 }
 const trySetReadIp = debounce(async () => {
-	if (await ping(SELF_IP))
-		readIP = SELF_IP;
+	try {
+		const ips = await getServers();
+		if (ips.includes(SELF_IP!))
+			readIP = SELF_IP!;
+	} catch (e) {}
 })
 export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined) => {
 	// uncommitted writes are not possible in read-only nodes
