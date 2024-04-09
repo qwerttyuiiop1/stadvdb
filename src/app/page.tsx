@@ -14,7 +14,10 @@ export default function Home() {
   React.useEffect(() => {
 	fetch('/api/appointments?limit=100&page=' + page)
 	  .then(response => response.json())
-	  .then(data => setAppointments(data.appointments));
+	  .then((data: any) => {
+		setAppointments(data.appointments)
+		console.log(data)
+  	  });
   }, [page]);
 
   const handleEditClick = async ( rowNumber: number ) => {
