@@ -6,7 +6,7 @@ import Table from "@/components/Table/Table";
 import { Appointment }  from '@/components/Table/TableRow';
 import Form from '@/components/Form/Form'
 
-const appointments: Appointment[] = [
+const sample_appointments: Appointment[] = [
   {
     pxid: "EF196B348A49FB32DABC9834DC4FAAD9",
     clinicid: "ADF7EE2DCF142B0E11888E72B43FCB75",
@@ -97,28 +97,16 @@ const appointments: Appointment[] = [
 export default function Home() {
   const [rowData, setRowData] = useState<Appointment | null>(null);
   const [rowNumber, setrowNumber] = useState<number>(0);
+  const [appointments, setAppointments] = useState<Appointment[]>(sample_appointments)
   
-  const handleEdit = async ( data: Appointment, rowNumber: number ) => {
-    setRowData(data);
+  const handleEdit = async ( rowData: Appointment, rowNumber: number ) => {
+    setRowData(rowData);
     setrowNumber(rowNumber);
   }
   
-  const handleDelete = async ( data: Appointment ) => {
-    try {
-      const response: Response = await fetch(`/api/appointments`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ apptid: data.apptid }),
-      });
-
-      // onDeleteClick(data);
-  
-      // rest of your code...
-    } catch (error) {
-      console.error(error);
-    }
+  const handleDelete = async ( rowData: Appointment ) => {
+    const updatedAppointments = appointments.filter(appointment => appointment.apptid !== rowData.apptid);
+    setAppointments(updatedAppointments);
   }
 
 

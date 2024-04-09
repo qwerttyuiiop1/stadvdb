@@ -37,7 +37,7 @@ const TableRow: React.FC<{
         body: JSON.stringify({ apptid: data.apptid }),
       });
 
-      // onDeleteClick(data);
+      onDeleteClick(data);
   
       // rest of your code...
     } catch (error) {
