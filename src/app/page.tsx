@@ -7,7 +7,7 @@ import { Appointment }  from '@/components/Table/TableRow';
 import Form from '@/components/Form/Form'
 
 export default function Home() {
-  const [rowNumber, setrowNumber] = useState<number>(-1);
+  const [rowNumber, setrowNumber] = useState<number>(0);
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [formMode, setFormMode] = useState<'add' | 'edit' | 'search'>('add');
   const [page, setPage] = useState<number>(1);
@@ -30,12 +30,12 @@ export default function Home() {
   const handleUpdate = async ( rowData: Appointment ) => {
 	const updatedAppointments = appointments.map(appointment => appointment.apptid === rowData.apptid ? rowData : appointment);
 	setAppointments(updatedAppointments);
-	setrowNumber(-1);
+	setrowNumber(0);
   }
   const handleAdd = async ( rowData: Appointment ) => {
 	const updatedAppointments = appointments.concat(rowData);
 	setAppointments(updatedAppointments);
-	setrowNumber(-1);
+	setrowNumber(0);
   }
 
   const handleSearch = () => {
@@ -51,7 +51,7 @@ export default function Home() {
       </div>
       <div className={styles.container}>
         <Table data={appointments} onEditClick={handleEditClick} onDelete={handleDelete} />
-        <Form data={rowNumber === -1 ? null :appointments[rowNumber]} mode={formMode} setFormMode={setFormMode} rowNumber={rowNumber} onUpdate={handleUpdate} onAdd={handleAdd} />
+        <Form data={rowNumber ? null :appointments[rowNumber-1]} mode={formMode} setFormMode={setFormMode} rowNumber={rowNumber} onUpdate={handleUpdate} onAdd={handleAdd} />
       </div>
     </main>
   );
