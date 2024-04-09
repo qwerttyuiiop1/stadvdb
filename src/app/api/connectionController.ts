@@ -89,18 +89,19 @@ async function executeSql(connection: mysql.Connection, sql: string[] | string, 
 async function executeTransaction<T>(conn: Connection, isolation: IsolationLevel, func: F<T>) {
   let host = conn.config.host;
   if (host === "localhost" || !host) host = SELF_IP!;
-  const isActive = getServers().then(ips => {
-	if (!ips.includes(host)) throw {code: "ECONNREFUSED"}
-  });
+  conn.sql = ((sql, i) => executeSql(conn, sql, i)) as sqlFunc;
   try {
-	if (isolation !== undefined) {
-	  await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
-	  await conn.beginTransaction();
-	}
-	conn.sql = ((sql, i) => executeSql(conn, sql, i)) as sqlFunc;
-	const res = await func(conn);
-	await isActive;
-	return res;
+	const isActive = getServers().then(ips => {
+	  if (!ips.includes(host)) throw {code: "ECONNREFUSED"}
+	});
+	const res = async () => {
+	  if (isolation !== undefined) {
+	  	await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
+	  	await conn.beginTransaction();
+	  }
+	  return func(conn);
+    }
+	return (await Promise.all([isActive, res()]))[1];
   } catch (e) {
 	await conn.rollback();
 	throw e;
