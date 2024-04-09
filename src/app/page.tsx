@@ -16,7 +16,7 @@ export default function Home() {
 	  .then(response => response.json())
 	  .then((data: any) => {
 		setAppointments(data.appointments)
-		console.log(data)
+		console.log('appointments', data)
   	  });
   }, [page]);
 
