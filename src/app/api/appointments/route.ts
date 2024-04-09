@@ -42,7 +42,7 @@ export const POST = async (req: NextRequest) => {
 			}
 		}
         return await conn.query(
-          "INSERT INTO appointments (pxid, clinicid, doctorid, status, queuedate, starttime, endtime, type, virtual, apptid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO appointments (pxid, clinicid, doctorid, status, queuedate, starttime, endtime, type, virtual, apptid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
           [
             pxid,
             clinicid,
