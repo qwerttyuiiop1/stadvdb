@@ -28,8 +28,8 @@ export const GET = async () => {
 	
 	const data = await Promise.all(queries);
 	return NextResponse.json({
-		write: data.slice(0, 2),
-		reads: data.slice(2),
+		write: data.slice(0, 1),
+		reads: data.slice(1),
 		before: before,
 		desc
 	});
