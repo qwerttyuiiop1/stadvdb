@@ -12,8 +12,9 @@ const Form: React.FC<{
   formData: Appointment,
   initialData: Appointment,
   onUpdate: (data: Appointment) => void,
-	onAdd: (data: Appointment) => void
-}> = ({ data, rowNumber, mode, setFormMode, setFormData, formData, initialData, onUpdate, onAdd }) => {
+  onAdd: (data: Appointment) => void,
+  onSearch: (data: Appointment) => void
+}> = ({ data, rowNumber, mode, setFormMode, setFormData, formData, initialData, onUpdate, onAdd, onSearch }) => {
   
     useEffect(() => {
       if (data) {
@@ -23,7 +24,7 @@ const Form: React.FC<{
         setFormMode('add');
         setFormData({...initialData, apptid: ''})
       }
-    }, [data, initialData, setFormMode]);
+    }, [data, initialData, setFormData, setFormMode]);
 
     const handleSubmit = async (event: React.FormEvent) => {
       event.preventDefault();
@@ -69,7 +70,9 @@ const Form: React.FC<{
         if (!response.ok)
           throw json;
         onAdd(json.appointment);
-      }
+      } else {
+		onSearch(data);
+	  }
     }
 
     return(
