@@ -24,12 +24,20 @@ export const GET = async () => {
 		},
 		body: JSON.stringify({ bar: IPS[0] })
 	}).then(r => r.json()))
+
+	queries.push(fetch(`http://localhost:80/api/test`, {
+		method: "PUT",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({ bar: IPS[0] + " sleep", sleep: 2000 })
+	}).then(r => r.json()))
 	queries = queries.concat(IPS.map(ip => fetch(`http://${ip}:80/api/test`).then(r => r.json())));
 	
 	const data = await Promise.all(queries);
 	return NextResponse.json({
-		write: data.slice(0, 1),
-		reads: data.slice(1),
+		write: data.slice(0, 2),
+		reads: data.slice(2),
 		before: before,
 		desc
 	});
