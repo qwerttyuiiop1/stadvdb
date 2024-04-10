@@ -26,17 +26,31 @@ export const GET = async (req: NextRequest) => {
 	conditions.push("status = ?");
 	whereValues.push(params.get("status")!);
   }
-  if (params.get("timequeued")) {
+  if (params.get("timequeuedstart") && params.get("timequeuedend")) {
+	conditions.push("timequeued BETWEEN ? AND ?");
+	whereValues.push(params.get("timequeuedstart")!);
+	whereValues.push(params.get("timequeuedend")!);
+  } else if (params.get("timequeued")) {
 	conditions.push("timequeued = ?");
 	whereValues.push(params.get("timequeued")!);
   }
-  if (params.get("queuedate")) {
+  if (params.get("queuedatestart") && params.get("queuedateend")) {
+	conditions.push("timequeued BETWEEN ? AND ?");
+	whereValues.push(params.get("queuedatestart")!);
+	whereValues.push(params.get("queuedateend")!);
+  } else if (params.get("queuedate")) {
 	conditions.push("queuedate = ?");
 	whereValues.push(params.get("queuedate")!);
   }
   if (params.get("starttime") && params.get("endtime")) {
 	conditions.push("starttime BETWEEN ? AND ?");
 	whereValues.push(params.get("starttime")!);
+	whereValues.push(params.get("endtime")!);
+  } else if (params.get("starttime")) {
+	conditions.push("starttime = ?");
+	whereValues.push(params.get("starttime")!);
+  } else if (params.get("endtime")) {
+	conditions.push("endtime = ?");
 	whereValues.push(params.get("endtime")!);
   }
   if (params.get("type")) {
@@ -57,8 +71,6 @@ export const GET = async (req: NextRequest) => {
   
   try {
     const res = await read(async (conn) => {
-	  console.log(req.nextUrl.searchParams)
-	  console.log("SELECT * FROM appointments" + where + order, whereValues)
       return conn.query("SELECT * FROM appointments" + where + order, whereValues);
     }, "READ COMMITTED");
     return NextResponse.json({ appointments: res[0] });
