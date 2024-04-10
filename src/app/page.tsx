@@ -43,6 +43,7 @@ export default function Home() {
 		setAppointments(data.appointments)
 		setrowNumber(0);
   	  });
+	console.log('/api/appointments?' + params.toString())
   }, [page, searchParams]);
 
   
