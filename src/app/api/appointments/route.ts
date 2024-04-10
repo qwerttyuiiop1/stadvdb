@@ -10,44 +10,44 @@ export const GET = async (req: NextRequest) => {
   const page = Number(params.get("page")) || 1;
   const conditions = [] as string[];
   const whereValues = [] as string[];
-  if (params.has("pxid")) {
+  if (params.get("pxid")) {
 	conditions.push("pxid = ?");
 	whereValues.push(params.get("pxid")!);
   }
-  if (params.has("clinicid")) {
+  if (params.get("clinicid")) {
 	conditions.push("clinicid = ?");
 	whereValues.push(params.get("clinicid")!);
   }
-  if (params.has("doctorid")) {
+  if (params.get("doctorid")) {
 	conditions.push("doctorid = ?");
 	whereValues.push(params.get("doctorid")!);
   }
-  if (params.has("status")) {
+  if (params.get("status")) {
 	conditions.push("status = ?");
 	whereValues.push(params.get("status")!);
   }
-  if (params.has("timequeued")) {
+  if (params.get("timequeued")) {
 	conditions.push("timequeued = ?");
 	whereValues.push(params.get("timequeued")!);
   }
-  if (params.has("queuedate")) {
+  if (params.get("queuedate")) {
 	conditions.push("queuedate = ?");
 	whereValues.push(params.get("queuedate")!);
   }
-  if (params.has("starttime") && params.has("endtime")) {
+  if (params.get("starttime") && params.get("endtime")) {
 	conditions.push("starttime BETWEEN ? AND ?");
 	whereValues.push(params.get("starttime")!);
 	whereValues.push(params.get("endtime")!);
   }
-  if (params.has("type")) {
+  if (params.get("type")) {
 	conditions.push("type = ?");
 	whereValues.push(params.get("type")!);
   }
-  if (params.has("virtual")) {
+  if (params.get("virtual")) {
 	conditions.push("virtual = ?");
 	whereValues.push(params.get("virtual")!);
   }
-  if (params.has("apptid")) {
+  if (params.get("apptid")) {
 	conditions.push("apptid = ?");
 	whereValues.push(params.get("apptid")!);
   }
