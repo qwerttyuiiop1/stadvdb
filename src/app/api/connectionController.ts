@@ -61,21 +61,17 @@ class Static {
 		return res[0].map((r: any) => r.MEMBER_HOST) as string[];
 	});
 	static refreshMasterIp = debounce(async function () {
-		console.log("IP", 'previous master', Static.masterIP);
 		const res = await raceQueries(async conn =>
 		  conn.query(`SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = "PRIMARY"`)
 		) as any;
 		Static.masterIP = res[0][0].MEMBER_HOST!;
-		console.log("IP", 'new master', Static.masterIP);
 	})
 	static refreshReadIp = debounce(async function () {
-		console.log("IP", 'previous read', Static.readIP);
 		const ips = await Static.getServers();
 		if (ips.includes(SELF_IP!))
 			Static.readIP = SELF_IP!;
 		else
 			Static.readIP = ips[Math.floor(Math.random() * ips.length)]!;
-		console.log("IP", 'new read', Static.readIP);
 	});
 }
 
@@ -126,7 +122,7 @@ export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined)
 		Static.refreshReadIp();
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			return executeTransaction(isolation, func, {
+			return await executeTransaction(isolation, func, {
 				host: Static.readIP, user: READ_USER, password: PASSWORD, database: DATABASE
 			});
 		} catch (e: any) {
@@ -140,14 +136,12 @@ export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined)
 export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			return executeTransaction(isolation, func, {
+			return await executeTransaction(isolation, func, {
 				host: Static.masterIP, user: USER, password: PASSWORD, database: DATABASE
 			});
 		} catch (e: any) {
-			console.log("!!!!1");
 			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
-			console.log("!!!!2");
 			await Static.refreshMasterIp();
 		}
 	}
@@ -156,7 +150,7 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined, server: 'master'|'self' = 'master'): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			return executeTransaction(isolation, func, {
+			return await executeTransaction(isolation, func, {
 				host: server === 'master' ? Static.masterIP : SELF_IP, user: ADMIN_USER, password: ADMIN_PASSWORD
 			});
 		} catch (e: any) {
