@@ -8,7 +8,7 @@ central node refers to the current master at the time the test is run
 
 export const GET = async () => {
   try {
-	await fetch(`http://localhost:80/api/_foo`, { 
+	await fetch(`http://localhost:80/api/test`, { 
 		method: "PUT",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ bar: 'master' })
@@ -20,7 +20,7 @@ export const GET = async () => {
 	const ip = ips[Math.floor(Math.random() * ips.length)];
 
 	await fetch(`http://${ip}:80/api/stop`);
-	await fetch(`http://${master}:80/api/_foo`, {
+	await fetch(`http://${master}:80/api/test`, {
 		method: "PUT",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ bar: master })

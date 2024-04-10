@@ -8,7 +8,7 @@ assumption: all nodes are properly set-up, running, and not locked
 `
 export const GET = async () => {
   try {
-	await fetch(`http://localhost:80/api/_foo`, {
+	await fetch(`http://localhost:80/api/test`, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json"
@@ -17,14 +17,14 @@ export const GET = async () => {
 	});
 	const before = await fetch(`http://localhost:80/api/test/1`).then(r => r.json());
 	let queries = [] as any[];
-	queries.push(fetch(`http://localhost:80/api/_foo`, {
+	queries.push(fetch(`http://localhost:80/api/test`, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({ bar: IPS[0] })
 	}).then(r => r.json()))
-	queries = queries.concat(IPS.map(ip => fetch(`http://${ip}:80/api/_foo`).then(r => r.json())));
+	queries = queries.concat(IPS.map(ip => fetch(`http://${ip}:80/api/test`).then(r => r.json())));
 	
 	const data = await Promise.all(queries);
 	return NextResponse.json({

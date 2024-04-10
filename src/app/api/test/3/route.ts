@@ -7,7 +7,7 @@ assumption: all nodes are properly set-up, running, and not locked
 export const GET = async () => {
   const shuffled = IPS.slice().sort(() => Math.random() - 0.5);
   try {
-	await fetch(`http://localhost:80/api/_foo`, {
+	await fetch(`http://localhost:80/api/test`, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json"
@@ -16,7 +16,7 @@ export const GET = async () => {
 	});
 	const before = await fetch(`http://localhost:80/api/test/1`).then(r => r.json());
 	
-	const queries = shuffled.map(ip => fetch(`http://${ip}:80/api/_foo`, {
+	const queries = shuffled.map(ip => fetch(`http://${ip}:80/api/test`, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json"
