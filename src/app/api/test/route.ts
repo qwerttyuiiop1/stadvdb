@@ -5,6 +5,7 @@ export const GET = async (req: NextRequest) => {
 	const res = await read(async conn => {
 		return conn.sql('SELECT status, apptid FROM appointments WHERE apptid="1"')
 	}, "READ COMMITTED");
+	console.log('GET executed')
 	return NextResponse.json(res[0]);
   } catch (e) {
 	console.error(e);
@@ -16,8 +17,10 @@ export const PUT = async (req: NextRequest) => {
 	const { bar } = await req.json();
 	const res = await write(async conn => {
 		await conn.query('UPDATE appointments SET status = ? WHERE apptid = "1"', [bar])
+		await new Promise(resolve => setTimeout(resolve, 3000));
 		return conn.sql('SELECT status, apptid FROM appointments WHERE apptid="1"')
 	}, "REPEATABLE READ");
+	console.log('PUT executed')
 	return NextResponse.json(res[0]);
   } catch (e) {
 	console.error(e);
