@@ -148,7 +148,9 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		} catch (e: any) {
 			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
+			console.log('previous master ip:', masterIP)
 			await refreshMasterIp();
+			console.log('new master ip:', masterIP)
 		}
 	}
 	throw new Error("All servers are down");
