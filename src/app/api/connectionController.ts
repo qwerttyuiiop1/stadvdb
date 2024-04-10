@@ -90,31 +90,32 @@ export interface Connection extends mysql.Connection {
 type F<T> = (conn: Connection) => Awaitable<T>;
 type IsolationLevel = "READ UNCOMMITTED" | "READ COMMITTED" | "REPEATABLE READ" | "SERIALIZABLE" | undefined;
 async function executeTransaction<T>(isolation: IsolationLevel, func: F<T>, options: mysql.ConnectionOptions) {
-  const conn = await mysql.createConnection(options) as Connection;
-  let host = conn.config.host;
-  if (host === "localhost" || !host) host = SELF_IP!;
-  conn.sql = ((sql, i) => executeSql(conn, sql, i)) as sqlFunc;
+  let conn: Connection | undefined;
   try {
+	conn = await mysql.createConnection(options) as Connection;
+    let host = options.host;
+    if (host === "localhost" || !host) host = SELF_IP!;
+    conn.sql = ((sql, i) => executeSql(conn!, sql, i)) as sqlFunc;
 	const isActive = Static.getServers().then(ips => {
 	  if (!ips.includes(host)) throw {code: "ECONNREFUSED"}
 	});
 	const res = async () => {
 	  if (isolation !== undefined) {
-	  	await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
-		await conn.query("SET autocommit = 0;");
-		await conn.query("START TRANSACTION;");
+	  	await conn!.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
+		await conn!.query("SET autocommit = 0;");
+		await conn!.query("START TRANSACTION;");
 	  }
-	  const res = func(conn);
+	  const res = func(conn!);
 	  if (isolation !== undefined)
-		await conn.query("COMMIT;");
+		await conn!.query("COMMIT;");
 	  return res;
     }
 	return (await Promise.all([isActive, res()]))[1];
   } catch (e) {
-	await conn.query("ROLLBACK;");
+	await conn?.query("ROLLBACK;");
 	throw e;
   } finally {
-	await conn.end();
+	await conn?.end();
   }
 }
 export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined) => {
