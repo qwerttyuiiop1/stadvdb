@@ -144,8 +144,10 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 				host: Static.masterIP, user: USER, password: PASSWORD, database: DATABASE
 			});
 		} catch (e: any) {
+			console.log("!!!!1");
 			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
+			console.log("!!!!2");
 			await Static.refreshMasterIp();
 		}
 	}
