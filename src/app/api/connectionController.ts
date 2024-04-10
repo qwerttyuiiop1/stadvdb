@@ -162,8 +162,8 @@ export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		} catch (e: any) {
 			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT" || server === 'self')
 				throw e;
+			await Static.refreshMasterIp();
 		}
-		await Static.refreshMasterIp();
 	}
 	throw new Error("All servers are down");
 }
