@@ -18,7 +18,7 @@ export const PUT = async (req: NextRequest) => {
 	const res = await write(async conn => {
 		await conn.query('UPDATE appointments SET status = ? WHERE apptid = "1"', [bar])
 		await new Promise(resolve => setTimeout(resolve, 1000));
-		await conn.query('ROLLBACK;');
+		await conn.rollback();
 		return await conn.sql('SELECT status, apptid FROM appointments WHERE apptid="1"');
 	}, "REPEATABLE READ");
 	console.log('PUT executed')
