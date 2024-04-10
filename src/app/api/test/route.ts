@@ -15,9 +15,7 @@ export const PUT = async (req: NextRequest) => {
   try {
 	const { bar, sleep } = await req.json();
 	const res = await write(async conn => {
-		await conn.query('UPDATE appointments SET status = ? WHERE apptid = "1"', [bar])
-		if (sleep) await new Promise(resolve => setTimeout(resolve, sleep))
-		return conn.sql('SELECT status, apptid FROM appointments WHERE apptid="1"')
+		return await conn.query('UPDATE appointments SET status = ? WHERE apptid = "1"; SELECT status, apptid FROM appointments WHERE apptid="1";', [bar])
 	}, "REPEATABLE READ");
 	return NextResponse.json(res[0]);
   } catch (e) {
