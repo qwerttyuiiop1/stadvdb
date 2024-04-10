@@ -23,21 +23,21 @@ const debounce = <T>(func: () => Awaitable<T>, cache = 0) => {
 }
 async function raceQueries<T>(func: (conn: mysql.Connection) => Promise<T>) {
 	const queries = IPS.map(async ip => {
-	  const conn = await mysql.createConnection({
-	    host: ip, user: ADMIN_USER, password: ADMIN_PASSWORD
-	  })
+	  let conn: mysql.Connection | undefined;
 	  try {
+		conn = await mysql.createConnection({
+	      host: ip, user: ADMIN_USER, password: ADMIN_PASSWORD
+	    })
 		return await func(conn);
 	  } catch (e) {
 		await new Promise((_, reject) => setTimeout(reject, 5000));
 	  } finally {
-		conn.end();
+		conn?.end();
 	  }
 	});
 	return await Promise.race(queries) as Promise<T>;
 }
-
-
+console.log("IP", "this is supposed to be printed only once");
 
 let masterIP = SELF_IP;
 let readIP = SELF_IP;
@@ -49,22 +49,22 @@ async function _getServers() {
 }
 const getServers = debounce(_getServers);
 async function _refresMasterIp() {
-	console.log("TAG", 'previous master', masterIP);
+	console.log("IP", 'previous master', masterIP);
 	const res = await raceQueries(async conn =>
 	  conn.query(`SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = "PRIMARY"`)
 	) as any;
 	masterIP = res[0][0].MEMBER_HOST!;
-	console.log("TAG", 'new master', masterIP);
+	console.log("IP", 'new master', masterIP);
 }
 const refreshMasterIp = debounce(_refresMasterIp);
 async function _refreshReadIp() {
-	console.log("TAG", 'previous read', readIP);
+	console.log("IP", 'previous read', readIP);
 	const ips = await getServers();
 	if (ips.includes(SELF_IP!))
 		readIP = SELF_IP!;
 	else
 		readIP = ips[Math.floor(Math.random() * ips.length)]!;
-	console.log("TAG", 'new read', readIP);
+	console.log("IP", 'new read', readIP);
 }
 const refreshReadIp = debounce(_refreshReadIp);
 
