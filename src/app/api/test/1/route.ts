@@ -8,7 +8,7 @@ assumption: all nodes are properly set-up, running, and not locked
 `
 export const GET = async () => {
   try {
-	const res = IPS.map(ip => fetch(`http://${ip}:80/api/foo/1`).then(r => r.json()));
+	const res = IPS.map(ip => fetch(`http://${ip}:80/api/_foo`).then(r => r.json()));
 	const data = await Promise.all(res);
 	const strs = data.map(d => JSON.stringify(d));
 	return NextResponse.json({

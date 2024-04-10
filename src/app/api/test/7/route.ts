@@ -8,7 +8,7 @@ central node refers to the current master at the time the test is run
 
 export const GET = async () => {
 	try {
-	  await fetch(`http://localhost:80/api/foo/1`, { 
+	  await fetch(`http://localhost:80/api/_foo`, { 
 		  method: "PUT",
 		  headers: { "Content-Type": "application/json" },
 		  body: JSON.stringify({ bar: 'master' })
@@ -21,7 +21,7 @@ export const GET = async () => {
   
 	  const sleep = fetch(`http://${ip}:80/api/lock/10`);
 	  await new Promise(r => setTimeout(r, 3000));
-	  await fetch(`http://${master}:80/api/foo/1`, {
+	  await fetch(`http://${master}:80/api/_foo`, {
 		  method: "PUT",
 		  headers: { "Content-Type": "application/json" },
 		  body: JSON.stringify({ bar: master })
