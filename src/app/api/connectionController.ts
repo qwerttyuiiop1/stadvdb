@@ -99,7 +99,7 @@ async function executeTransaction<T>(isolation: IsolationLevel, func: F<T>, opti
 	  if (isolation !== undefined) {
 	  	await conn!.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
 		await conn!.query("SET autocommit = 0;");
-		await conn!.beginTransaction();
+		await conn!.query("START TRANSACTION;");
 	  }
 	  const res = func(conn!);
 	  if (isolation !== undefined)
