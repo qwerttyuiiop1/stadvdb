@@ -57,6 +57,8 @@ export const GET = async (req: NextRequest) => {
   
   try {
     const res = await read(async (conn) => {
+	  console.log(req.nextUrl)
+	  console.log("SELECT * FROM appointments" + where + order, whereValues)
       return conn.query("SELECT * FROM appointments" + where + order, whereValues);
     }, "READ COMMITTED");
     return NextResponse.json({ appointments: res[0] });
