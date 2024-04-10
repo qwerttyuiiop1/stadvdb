@@ -37,47 +37,6 @@ async function raceQueries<T>(func: (conn: mysql.Connection) => Promise<T>) {
 	});
 	return await Promise.race(queries) as Promise<T>;
 }
-console.log("IP", "this is supposed to be printed only once");
-
-let masterIP = SELF_IP;
-let readIP = SELF_IP;
-async function _getServers() {
-	const res = await raceQueries(async conn =>
-	  conn.query(`SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_STATE = "ONLINE"`)
-	) as any;
-	return res[0].map((r: any) => r.MEMBER_HOST) as string[];
-}
-const getServers = debounce(_getServers);
-async function _refresMasterIp() {
-	console.log("IP", 'previous master', masterIP);
-	const res = await raceQueries(async conn =>
-	  conn.query(`SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = "PRIMARY"`)
-	) as any;
-	masterIP = res[0][0].MEMBER_HOST!;
-	console.log("IP", 'new master', masterIP);
-}
-const refreshMasterIp = debounce(_refresMasterIp);
-async function _refreshReadIp() {
-	console.log("IP", 'previous read', readIP);
-	const ips = await getServers();
-	if (ips.includes(SELF_IP!))
-		readIP = SELF_IP!;
-	else
-		readIP = ips[Math.floor(Math.random() * ips.length)]!;
-	console.log("IP", 'new read', readIP);
-}
-const refreshReadIp = debounce(_refreshReadIp);
-
-interface sqlFunc {
-	(sql: string): Promise<any>
-	(sql: string[]): Promise<any[]>
-	(sql: string[], i: number): Promise<any>
-}
-export interface Connection extends mysql.Connection {
-	sql: sqlFunc
-}
-type F<T> = (conn: Connection) => Awaitable<T>;
-type IsolationLevel = "READ UNCOMMITTED" | "READ COMMITTED" | "REPEATABLE READ" | "SERIALIZABLE" | undefined;
 async function executeSql(connection: mysql.Connection, sql: string[] | string, i: number | undefined) {
 	if (typeof sql === "string") {
 		sql = [sql];
@@ -90,12 +49,51 @@ async function executeSql(connection: mysql.Connection, sql: string[] | string, 
 	if (i === undefined) return res;
 	return res[(i + res.length) % res.length];
 }
+
+class Static {
+	static readIP = SELF_IP!;
+	static masterIP = SELF_IP!;
+	static getServers = debounce(async function () {
+		const res = await raceQueries(async conn =>
+		  conn.query(`SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_STATE = "ONLINE"`)
+		) as any;
+		return res[0].map((r: any) => r.MEMBER_HOST) as string[];
+	});
+	static refreshMasterIp = debounce(async function () {
+		console.log("IP", 'previous master', Static.masterIP);
+		const res = await raceQueries(async conn =>
+		  conn.query(`SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = "PRIMARY"`)
+		) as any;
+		Static.masterIP = res[0][0].MEMBER_HOST!;
+		console.log("IP", 'new master', Static.masterIP);
+	})
+	static refreshReadIp = debounce(async function () {
+		console.log("IP", 'previous read', Static.readIP);
+		const ips = await Static.getServers();
+		if (ips.includes(SELF_IP!))
+			Static.readIP = SELF_IP!;
+		else
+			Static.readIP = ips[Math.floor(Math.random() * ips.length)]!;
+		console.log("IP", 'new read', Static.readIP);
+	});
+}
+
+interface sqlFunc {
+	(sql: string): Promise<any>
+	(sql: string[]): Promise<any[]>
+	(sql: string[], i: number): Promise<any>
+}
+export interface Connection extends mysql.Connection {
+	sql: sqlFunc
+}
+type F<T> = (conn: Connection) => Awaitable<T>;
+type IsolationLevel = "READ UNCOMMITTED" | "READ COMMITTED" | "REPEATABLE READ" | "SERIALIZABLE" | undefined;
 async function executeTransaction<T>(conn: Connection, isolation: IsolationLevel, func: F<T>) {
   let host = conn.config.host;
   if (host === "localhost" || !host) host = SELF_IP!;
   conn.sql = ((sql, i) => executeSql(conn, sql, i)) as sqlFunc;
   try {
-	const isActive = getServers().then(ips => {
+	const isActive = Static.getServers().then(ips => {
 	  if (!ips.includes(host)) throw {code: "ECONNREFUSED"}
 	});
 	const res = async () => {
@@ -132,15 +130,15 @@ export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined)
 	// uncommitted writes are not possible in read-only nodes
 	if (isolation === "READ UNCOMMITTED")
 		return write(func, isolation);
-	if (readIP !== SELF_IP)
-		refreshReadIp();
+	if (Static.readIP !== SELF_IP)
+		Static.refreshReadIp();
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			return await execDB(readIP, isolation, func)
+			return await execDB(Static.readIP, isolation, func)
 		} catch (e: any) {
 			if (e.code !== "ECONNREFUSED")
 				throw e;
-			await refreshReadIp();
+			await Static.refreshReadIp();
 		}
 	}
 	throw new Error("All servers are down");
@@ -148,11 +146,11 @@ export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined)
 export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			return await execDB(masterIP, isolation, func);
+			return await execDB(Static.masterIP, isolation, func);
 		} catch (e: any) {
 			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
-			await refreshMasterIp();
+			await Static.refreshMasterIp();
 		}
 	}
 	throw new Error("All servers are down");
@@ -160,12 +158,12 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined, server: 'master'|'self' = 'master'): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			return await execAdmin(server === 'master' ? masterIP : SELF_IP, isolation, func);
+			return await execAdmin(server === 'master' ? Static.masterIP : SELF_IP, isolation, func);
 		} catch (e: any) {
 			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT" || server === 'self')
 				throw e;
-			await refreshMasterIp();
 		}
+		await Static.refreshMasterIp();
 	}
 	throw new Error("All servers are down");
 }
