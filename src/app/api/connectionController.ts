@@ -49,18 +49,22 @@ async function _getServers() {
 }
 const getServers = debounce(_getServers);
 async function _refresMasterIp() {
+	console.log("TAG", 'previous master', masterIP);
 	const res = await raceQueries(async conn =>
 	  conn.query(`SELECT MEMBER_HOST FROM performance_schema.replication_group_members WHERE MEMBER_ROLE = "PRIMARY"`)
 	) as any;
 	masterIP = res[0][0].MEMBER_HOST!;
+	console.log("TAG", 'new master', masterIP);
 }
 const refreshMasterIp = debounce(_refresMasterIp);
 async function _refreshReadIp() {
+	console.log("TAG", 'previous read', readIP);
 	const ips = await getServers();
 	if (ips.includes(SELF_IP!))
 		readIP = SELF_IP!;
 	else
 		readIP = ips[Math.floor(Math.random() * ips.length)]!;
+	console.log("TAG", 'new read', readIP);
 }
 const refreshReadIp = debounce(_refreshReadIp);
 
@@ -148,9 +152,7 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 		} catch (e: any) {
 			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
-			console.log('previous master ip:', masterIP)
 			await refreshMasterIp();
-			console.log('new master ip:', masterIP)
 		}
 	}
 	throw new Error("All servers are down");
