@@ -2,11 +2,12 @@ export const SELF_IP = process.env.SELF_IP;
 export const IPS = [process.env.NODE_1_IP, process.env.NODE_2_IP, process.env.NODE_3_IP] as string[];
 const PASSWORD = process.env.DB_PASSWORD;
 const USER = process.env.DB_USER;
+const READ_USER = process.env.READ_USER;
 const DATABASE = process.env.DATABASE;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const ADMIN_USER = process.env.ADMIN_USER;
 const MAX_RETRIES = 5;
-if (!SELF_IP || !PASSWORD || !USER || !DATABASE || IPS.some(ip => !ip) || !ADMIN_PASSWORD || !ADMIN_USER)
+if (!SELF_IP || !PASSWORD || !USER || !DATABASE || IPS.some(ip => !ip) || !ADMIN_PASSWORD || !ADMIN_USER || !READ_USER)
 	throw new Error("Environment variables not provided");
 import mysql from "mysql2/promise";
 type Awaitable<T> = T | PromiseLike<T>;
@@ -88,7 +89,8 @@ export interface Connection extends mysql.Connection {
 }
 type F<T> = (conn: Connection) => Awaitable<T>;
 type IsolationLevel = "READ UNCOMMITTED" | "READ COMMITTED" | "REPEATABLE READ" | "SERIALIZABLE" | undefined;
-async function executeTransaction<T>(conn: Connection, isolation: IsolationLevel, func: F<T>) {
+async function executeTransaction<T>(isolation: IsolationLevel, func: F<T>, options: mysql.ConnectionOptions) {
+  const conn = await mysql.createConnection(options) as Connection;
   let host = conn.config.host;
   if (host === "localhost" || !host) host = SELF_IP!;
   conn.sql = ((sql, i) => executeSql(conn, sql, i)) as sqlFunc;
@@ -99,6 +101,7 @@ async function executeTransaction<T>(conn: Connection, isolation: IsolationLevel
 	const res = async () => {
 	  if (isolation !== undefined) {
 	  	await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
+		await conn.query("SET autocommit = 0;");
 		await conn.query("START TRANSACTION;");
 	  }
 	  const res = func(conn);
@@ -114,18 +117,6 @@ async function executeTransaction<T>(conn: Connection, isolation: IsolationLevel
 	await conn.end();
   }
 }
-async function execDB<T>(host: string, isolation: IsolationLevel, func: F<T>) {
-  const conn = await mysql.createConnection({
-	host: host, user: USER, password: PASSWORD, database: DATABASE
-  }) as Connection;
-  return executeTransaction(conn, isolation, func);
-}
-async function execAdmin<T>(host: string, isolation: IsolationLevel, func: F<T>) {
-  const conn = await mysql.createConnection({
-	host: host, user: ADMIN_USER, password: ADMIN_PASSWORD
-  }) as Connection;
-  return executeTransaction(conn, isolation, func);
-}
 export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined) => {
 	// uncommitted writes are not possible in read-only nodes
 	if (isolation === "READ UNCOMMITTED")
@@ -134,7 +125,9 @@ export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined)
 		Static.refreshReadIp();
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			return await execDB(Static.readIP, isolation, func)
+			return executeTransaction(isolation, func, {
+				host: Static.readIP, user: READ_USER, password: PASSWORD, database: DATABASE
+			});
 		} catch (e: any) {
 			if (e.code !== "ECONNREFUSED")
 				throw e;
@@ -146,7 +139,9 @@ export const read = async <T>(func: F<T>, isolation: IsolationLevel = undefined)
 export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			return await execDB(Static.masterIP, isolation, func);
+			return executeTransaction(isolation, func, {
+				host: Static.masterIP, user: USER, password: PASSWORD, database: DATABASE
+			});
 		} catch (e: any) {
 			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT")
 				throw e;
@@ -158,9 +153,11 @@ export const write = async <T>(func: F<T>, isolation: IsolationLevel = undefined
 export const admin = async <T>(func: F<T>, isolation: IsolationLevel = undefined, server: 'master'|'self' = 'master'): Promise<T> => {
 	for (let i = 0; i < MAX_RETRIES; i++) {
 		try {
-			return await execAdmin(server === 'master' ? Static.masterIP : SELF_IP, isolation, func);
+			return executeTransaction(isolation, func, {
+				host: server === 'master' ? Static.masterIP : SELF_IP, user: ADMIN_USER, password: ADMIN_PASSWORD
+			});
 		} catch (e: any) {
-			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT" || server === 'self')
+			if (e.code !== "ECONNREFUSED" && e.code !== "ER_OPTION_PREVENTS_STATEMENT" || server !== 'master')
 				throw e;
 			await Static.refreshMasterIp();
 		}
