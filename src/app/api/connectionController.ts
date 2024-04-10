@@ -99,16 +99,16 @@ async function executeTransaction<T>(conn: Connection, isolation: IsolationLevel
 	const res = async () => {
 	  if (isolation !== undefined) {
 	  	await conn.query(`SET TRANSACTION ISOLATION LEVEL ${isolation};`);
-	  	await conn.beginTransaction();
+		await conn.query("START TRANSACTION;");
 	  }
 	  const res = func(conn);
 	  if (isolation !== undefined)
-		await conn.commit();
+		await conn.query("COMMIT;");
 	  return res;
     }
 	return (await Promise.all([isActive, res()]))[1];
   } catch (e) {
-	await conn.rollback();
+	await conn.query("ROLLBACK;");
 	throw e;
   } finally {
 	await conn.end();
