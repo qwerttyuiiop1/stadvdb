@@ -39,7 +39,10 @@ export default function Home() {
 	params.append('page', page.toString());
     fetch('/api/appointments?' + params.toString())
       .then(response => response.json())
-      .then(data => setAppointments(data.appointments));
+      .then(data => {
+		setAppointments(data.appointments)
+		setrowNumber(0);
+  	  });
   }, [page, searchParams]);
 
   
