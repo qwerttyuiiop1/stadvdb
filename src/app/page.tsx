@@ -69,6 +69,10 @@ export default function Home() {
     setFormMode('search');
     setFormData(initialData);
   }
+  const handleSearch = (app: Appointment) => {
+	setSearchParams(app);
+	setPage(1);
+  }
 
 
   return (
@@ -79,7 +83,7 @@ export default function Home() {
       </div>
       <div className={styles.container}>
         <Table data={appointments} onEditClick={handleEditClick} onDelete={handleDelete} />
-        <Form data={rowNumber ? appointments[rowNumber-1] : null} mode={formMode} setFormMode={setFormMode} setFormData={setFormData} formData={formData} initialData={initialData} rowNumber={rowNumber} onUpdate={handleUpdate} onAdd={handleAdd} onSearch={setSearchParams} />
+        <Form data={rowNumber ? appointments[rowNumber-1] : null} mode={formMode} setFormMode={setFormMode} setFormData={setFormData} formData={formData} initialData={initialData} rowNumber={rowNumber} onUpdate={handleUpdate} onAdd={handleAdd} onSearch={handleSearch} />
       </div>
     </main>
   );
