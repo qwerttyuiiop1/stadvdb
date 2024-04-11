@@ -35,7 +35,6 @@ const Form: React.FC<{
         (data as any)[key] = value;
       }
 
-      data.apptid = formData.apptid;
       console.log('submit', data);
 
       // Edit mode
