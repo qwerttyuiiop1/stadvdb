@@ -22,7 +22,7 @@ const Form: React.FC<{
         setFormData({...data});
       } else {
         setFormMode('add');
-        setFormData({...initialData, apptid: ''})
+        setFormData({...initialData})
       }
     }, [data, initialData, setFormData, setFormMode]);
 
