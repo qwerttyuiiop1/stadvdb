@@ -23,9 +23,9 @@ export default function Home() {
     virtual: null,
     apptid: ''
   }), []);
-  const [searchParams, setSearchParams] = useState<Appointment>(initialData);
+  const [searchParams, setSearchParams] = useState<Appointment>({...initialData});
 
-  const [formData, setFormData] = useState<Appointment>(initialData);
+  const [formData, setFormData] = useState<Appointment>({...initialData});
   const [page, setPage] = useState<number>(1);
   
   React.useEffect(() => {
