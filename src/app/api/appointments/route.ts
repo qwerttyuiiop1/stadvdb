@@ -58,7 +58,7 @@ export const GET = async (req: NextRequest) => {
 	whereValues.push(params.get("type")!);
   }
   if (params.get("virtual")) {
-	conditions.push("virtual = ?");
+	conditions.push("`virtual` = ?");
 	whereValues.push(params.get("virtual")!);
   }
   if (params.get("apptid")) {
